@@ -1,0 +1,62 @@
+Dictionary
+
+Patient ID
+Date of Hospital admission
+Date of ICU admission
+Date NE has been started during ICU-admission
+NE started in less than 24h from ICU-admission (1=yes; 0=no)
+Male (1) or Female (0) (sec. column A on drop-down list sheet)
+years
+Kg
+cm
+Source of septic shock (sec. column B on drop-down list sheet)
+source of septic shock different from those included above
+Type/species of microorganisms identified 
+Where the bug/s has/have been isolated from (drop-down list F)
+defined as: Gram pos Methicillin resistant; Gram neg resistant to at least 3 antibiotic classes; Enterococcus Vancomycin resist; Candida Fluconazole resistant
+Defined as: neutrophils < 500 cells/mm3 OR chemotherapy administration in the last 2 weeks OR prednisone ≥20 mg/day or equivalent (1=yes; 0=no)
+Beta-blockade therapy before ICU (1=yes; 0=no)
+Aspirin started pre-hospital admission (1=yes; 0=no)
+Aspirin started during ICU admission (1=yes; 0=no)
+Comorbidities that explain Aspirin prescription (1=yes; 0=no)
+SOFA score at 24hrs after admission in ICU
+Noradrenalin (NE) rate 1st hour (mcg/kg/min)
+HR (bpm) at 1st hour NE infusion
+sinus rhythm = 0, others = 1
+Systolic Blood Pressure (SBP; invasive or non-invasive, not distinct) at 1st hour NE infusion
+Diastolic Blood Pressure (DBP; invasive or non-invasive) at 1st hour NE infusion
+Main Arterial Pressure (MAP; invasive or non-invasive) at 1st hour NE infusion
+Cardiac Output at 1st hour NE infusion
+Body temperature  (°C) at 1st hour NE infusion
+SOFA score at 1st hour NE infusion
+Other vasoactive/inotrope drug at 1st hr of NE infusion  (1=yes; 0=no)
+Sedation Score at 1st hr of NE infusion
+Mechanical Ventilation, PEEP, PaO2, FiO2, lactate at 1st hour NE infusion
+Renal Replacement Therapy at 1st hour NE infusion
+Peak value of NE in 24hrs (mcg/kg/min)
+HR (bpm) at Peak NE 
+Rhythm, SBP, DBP, MAP, CO at Peak NE 
+Other vasoactive/inotrop drug at Peak NE 
+Sedation Score at Peak NE
+Mechanical Ventilation, PEEP and RRT at Peak NE 
+Highest and lowest temperature (central or periph, not distinct) in the first 24hrs after starting NE
+Worst PaO2 with corresponding FiO2, worst lactate value in the first 24hrs after starting NE
+Steroids and beta-blockers given in the first 24hrs after starting NE (1=yes; 0=no)
+Norad rate at 24hrs after NE_1 (mg/kg/min)
+HR (bpm) at NE_24
+Rhythm, SBP, DBP, MAP, CO at NE_24
+SOFA score, other vasoactive/inotrop drug, Sedation Score at NE_24
+Mechanical Ventilation, PEEP, PaO2, FiO2, lactate at NE_24
+Renal Replacement Therapy at NE_24
+Total intake of fluids the day NE has been started
+Total losses the day NE has been started
+Fluid Balance the day NE has been started
+Cumulative total-in, total-losses, FB from the day NE has been started, for 4 days (day1+day2+day3+day4 after NE started)
+Duration (days) of pre-ITU Lenght Of Stay
+Duration (days) of ITU admission
+Duration (days) of Hospitalization after ITU
+Total Hospital Lenght Of Stay (days)
+ITU_Mortality (1=yes; 0=no)
+Hospital Mortality (1=yes; 0=no)
+Cause od Death: intractable htn, respiratory failure, MOF, withdrawal, cerebral event (sec. column E on drop-down list sheet)
+number of days comprehended in the cumulative total-in, total-out and FB
