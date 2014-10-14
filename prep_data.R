@@ -57,9 +57,12 @@ assert_that(sum(duplicated(rdf$id)) == 0)
 # Prepare empty data frame
 rm(wdt)
 wdt <- data.table(id.original = rdf$id)
-wdt$id <- c(1:nrow(wdt))
-head(wdt)
 
+# Use date for ordering and then create a unique sequence
+describe(rdf$icu_adm) # can't use missing 100 vals
+describe(rdf$ne_start)
+wdt$ne.start.dt <- as.Date(rdf$ne_start, '%d/%m/%y')
+describe(wdt$ne.start.dt) # TODO: 2014-10-13 - [ ] odd dates fr 2008?
 
 # Now start adding variables
 wdt$hosp <- tolower(gsub("([a-z]?)-[0-9]+","\\1", wdt$id.original))
@@ -71,6 +74,16 @@ assert_that(
 	- sum(wdt$hosp %in% c('an', 'rome', 'blf', 'lee', 'rlh', 'uclh'))
 	== 0
 	)
+
+# Now make your own ordered unique ID (overall)
+setorder(wdt, hosp, ne.start.dt)
+wdt$id <- c(1:nrow(wdt))
+head(wdt)
+describe(wdt$id)
+
+# Now make your own ordered unique ID (by hosp)
+wdt[, id.hosp := c(1:nrow(.SD)), by=hosp]
+describe(wdt$id.hosp)
 
 # Patient characteristics
 wdt$male 	<- ifelse(rdf$gender   == 1, 1, 0)
