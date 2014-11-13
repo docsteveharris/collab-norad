@@ -9,15 +9,6 @@
 # Todo
 # ====
 
-# *- [X] TODO: add by strata functionality
-# *- [X] TODO: calculate percentages for categories
-# *- [X] TODO: add total missing by category
-# *- [X] TODO: total missing over strata for continuous
-# *- [X] TODO: reshape strata if they exist to wide
-# *- [X] TODO: needs to export
-
-# TODO: 2014-10-13 - [ ] convert this to 3 way comparison by norad threshold
-
 # Notes
 #
 
@@ -44,7 +35,10 @@
 #  =====================
 #  = Load dependencies =
 #  =====================
-library(data.table) # NB setnames and setorder only exist in >v1.9
+# Install latest version
+# install.packages('data.table', type='source') (use source version to get latest)
+# update.packages(type='source')
+library(data.table)
 library(reshape2)
 library(XLConnect)
 
@@ -64,13 +58,14 @@ vars.strata <-  'hosp'
 
 vars <- c(
 	'male', 'age', 'weight', 'height', 'bmi',
-	# 'sepsis.site', TODO: 2014-10-13 - [ ] this is not being treated as a catvar
-	'pmh.betablock', 
+	'sepsis.site', 'pmh.betablock', 
 	'sofa.0', 'sofa.1', 'sofa.24',
 	'ne.1', 'ne.24',
 	'hr.1', 'hr.24',
 	'map.1', 'map.24',
 	'bps.1', 'bps.24',
+	'rx.betablock', 'rx.roids',
+	'fin.24', 'fb.24',
 	'mort.itu', 'mort.hosp'
 	)
 
@@ -84,6 +79,7 @@ if (is.na(vars.strata)) {
 # Define the characteristics of the variables
 vars.factor <- c(
 	'male', 'sepsis.site', 'pmh.betablock',
+	'rx.betablock', 'rx.roids',
 	'mort.itu', 'mort.hosp'
 	)
 
@@ -106,7 +102,6 @@ wdt[, (vars.factor) :=lapply(.SD, as.factor), .SDcols=vars.factor]
 vars.factor <- vars.factor[!vars.factor %in% vars.strata]
 
 # Now produce the summaries for the continuous vars
-# TODO: 2014-10-10 - add n, p.miss skew kurt, q5 q95
 # NOTE: 2014-10-11 - lapply to sapply since then returns vectors not lists
 
 t1.contvars <- function(var, strata, this_dt) {
@@ -132,7 +127,9 @@ t1.contvars <- function(var, strata, this_dt) {
 	]
 }
 # t1.contvars(c('lactate', 'bpsys'), c('room_cmp', 'sex'), wdt)
-# t1.contvars('sofa.1', vars.strata, wdt)
+t1.contvars('sofa.1', vars.strata, wdt)
+vars.cont
+str(wdt)
 
 # Now do this for all the continuous vars
 t1.contvars.results <- t1.contvars(vars.cont, vars.strata, wdt)
@@ -176,8 +173,6 @@ t1.catvars.results <- lapply(vars.factor, function(var) t1.catvars(var, vars.str
 t1.catvars.results <- do.call(rbind, t1.catvars.results)
 t1.catvars.results
 
-
-# TODO: 2014-10-11 - tidy up calculation of missing
 t1.catvars.results[, miss.n:=NULL, ]
 t1.catvars.results[is.na(level), miss.n := lapply(.SD, function(x) sum(N)), by=varname]
 t1.catvars.results[, miss.n := ifelse(is.na(miss.n), 0, miss.n) ]
@@ -209,7 +204,10 @@ cols_all_order <- c(vars.strata, c('varname', 'miss.p', 'level', 'N', 'pct', 'me
 # Drop the NA levels since these are captured in the miss.n and miss.p fields
 t1.results <- t1.results[!(vartype=='categorical' & is.na(level))]
 # Convert level from factor to numeric to enable sorting
-t1.results[, level := as.numeric(levels(level))[level]]
+# NOTE: 2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
+# so now create a new variable level.order
+as.numeric(t1.results$level)
+t1.results[, level.order := as.numeric(level)]
 
 # Extract variable level results
 t1.results.byvarname <- t1.results[, list(
@@ -241,17 +239,18 @@ t1.wide.raw[is.na(level), level := '']
 # NOTE: 2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
 # str(t1.results)
 t1.results.formatted <- t1.results[, list(
-	strata 	= get(vars.strata),
-	varname = varname,
-	level 	= level,
-	v.mid	= ifelse(vartype == 'categorical', N, mean),
-	v.left	= ifelse(vartype == 'categorical', pct, ifelse(dist == 'normal', sd, q25)),
-	v.right	= ifelse(vartype == 'categorical' | dist == 'normal', NA, q75),
-	miss.n	= miss.n,
-	miss.p	= miss.p,
-	N 		= N,
-	vartype = vartype,
-	dist 	= dist
+	strata      = get(vars.strata),
+	varname     = varname,
+	level       = level,
+	level.order = level.order,
+	v.mid       = ifelse(vartype == 'categorical', N, ifelse(dist== 'normal', mean, q50)),
+	v.left      = ifelse(vartype == 'categorical', pct, ifelse(dist == 'normal', sd, q25)),
+	v.right     = ifelse(vartype == 'categorical' | dist == 'normal', NA, q75),
+	miss.n      = miss.n,
+	miss.p      = miss.p,
+	N           = N,
+	vartype     = vartype,
+	dist        = dist
 	)]
 
 
@@ -264,15 +263,20 @@ t1.results.formatted <- t1.results.formatted[,
 					paste('(', sprintf("%.1f", v.left), ')', sep=''),
 					paste('(', sprintf("%.1f", v.left), '--', sprintf("%.1f", v.right), ')', sep='')))
 		) ]
+t1.results.formatted
 
 # Now reshape to wide
 t1.melt <- melt(
-	t1.results.formatted[, list(strata, varname, level, v.fmt1, v.fmt2, N, miss.n, miss.p)],
-	id=c('strata', 'varname', 'level'))
+	t1.results.formatted[, list(strata, varname, level, level.order, v.fmt1, v.fmt2, N, miss.n, miss.p)],
+	id=c('strata', 'varname', 'level', 'level.order'))
+t1.melt
 
 # Drop empty strata from the table
-t1.wide.summ <- dcast.data.table(t1.melt[(variable == 'v.fmt1' | variable == 'v.fmt2')], varname + level ~ strata + variable,
+t1.wide.summ <- dcast.data.table(
+	t1.melt[(variable == 'v.fmt1' | variable == 'v.fmt2')],
+	varname + level + level.order ~ strata + variable,
 	subset = .(!is.na(strata)))
+t1.wide.summ
 t1.wide.summ[, table.order := which(vars == varname), by=varname]
 
 t1.wide.summ[is.na(level), level := '']
@@ -280,7 +284,9 @@ t1.wide.summ[is.na(level), level := '']
 setkey(t1.wide.summ, varname)
 setkey(t1.results.byvarname, varname)
 t1.wide.summ <- t1.wide.summ[t1.results.byvarname]
-setorder(t1.wide.summ, +table.order, -level)
+setorder(t1.wide.summ, +table.order, -level.order)
+
+t1.wide.summ
 
 #  =======================
 #  = Now export to excel =

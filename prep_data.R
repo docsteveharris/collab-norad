@@ -48,6 +48,7 @@ nrow(rdf)
 rdf <- rdf[rdf$id != "",]
 nrow(rdf)
 assert_that(nrow(rdf) == 596)
+rdt <- data.table(rdf)
 
 # Sanity checks
 df.names <- data.frame(names(rdf))
@@ -65,17 +66,22 @@ assert_that(sum(duplicated(rdf$id)) == 0)
 # Prepare empty data frame
 rm(wdt)
 wdt <- data.table(id.original = rdf$id)
+setkey(rdt, id)
+setkey(wdt, id.original)
 
 # Use date for ordering and then create a unique sequence
 describe(rdf$icu_adm) # can't use missing 100 vals
 describe(rdf$ne_start)
-wdt$ne.start.dt <- as.Date(rdf$ne_start, '%d/%m/%y')
-describe(wdt$ne.start.dt) # TODO: 2014-10-13 - [ ] odd dates fr 2008?
+wdt <- wdt[rdt[,.(ne_start),keyby=id]]
+wdt[,ne.start.dt := as.Date(ne_start, '%d/%m/%y')]
+wdt[,ne_start    := NULL]
+
+# TODO: 2014-10-13 - [ ] check for ne_start fr 2008? @roberta-sara
+describe(wdt$ne.start.dt)
 
 # Now start adding variables
-wdt$hosp <- tolower(gsub("([a-z]?)-[0-9]+","\\1", wdt$id.original))
-factor(wdt$hosp)
-table(wdt$hosp)
+wdt[,hosp := factor(tolower(gsub("([a-z]?)-[0-9]+","\\1", id.original)))]
+str(wdt)
 describe(wdt$hosp)
 assert_that(
 	nrow(wdt)
@@ -94,74 +100,91 @@ wdt[, id.hosp := c(1:nrow(.SD)), by=hosp]
 describe(wdt$id.hosp)
 
 # Patient characteristics
-wdt$male 	<- ifelse(rdf$gender   == 1, 1, 0)
+str(wdt)
+setkey(wdt, id.original)
+wdt <- wdt[rdt[,.(gender),keyby=id]]
+wdt[,male 	:= ifelse(rdf$gender   == 1, 1, 0)]
+wdt[,gender := NULL]
 describe(wdt$male)
 
-wdt$age <- rdf$age
+wdt <- wdt[rdt[,.(age),keyby=id]]
 describe(wdt$age)
+stem(wdt$age)
 
 describe(rdf$height)
-wdt$height <- rdf$height
+wdt <- wdt[rdt[,.(height),keyby=id]]
+stem(wdt$height)
 
 describe(rdf$weight)
-wdt$weight <- rdf$weight
+wdt <- wdt[rdt[,.(weight),keyby=id]]
+stem(wdt$weight)
 
 describe(rdf$bmi)
-wdt$bmi <- rdf$bmi
+wdt <- wdt[rdt[,.(bmi),keyby=id]]
+stem(wdt$bmi)
 
 # Sepsis
 describe(rdf$source_infection)
-wdt$sepsis.site <- rdf$source_infection
-factor(wdt$sepsis.site)
-wdt[,list(.N, pct=.N/nrow(wdt)*100),sepsis.site]
+wdt <- wdt[rdt[,.(source_infection),keyby=id]]
+setnames(wdt,'source_infection','sepsis.site')
 
-# TODO: 2014-10-13 - [ ] decide which bugs you want reported (will need cleaning)
+# TODO: 2014-10-13 - [ ] decide which bugs you want reported (will need cleaning) @roberta-sara
 describe(rdf$bug1)
 describe(rdf$bug2)
 
 # Medications and interventions
-describe(rdf$b_block_hist)
-wdt$pmh.betablock <- factor(rdf$b_block_hist, labels=c(FALSE, TRUE))
-describe(wdt$pmh.betablock)
+describe(rdt$b_block_history)
+wdt <- wdt[rdt[,.(b_block_history),keyby=id]]
+wdt[,pmh.betablock := factor(b_block_history, labels=c(FALSE, TRUE))]
+wdt[,b_block_history  := NULL]
+str(wdt)
 
-str(rdf$b_block_1to24)
-wdt$rx.betablock <- factor(rdf$b_block_1to24, labels=c(FALSE, TRUE))
-describe(wdt$rx.betablock)
+wdt <- wdt[rdt[,.(b_block_1to24),keyby=id]]
+wdt[,rx.betablock := factor(b_block_1to24, labels=c(FALSE, TRUE))]
+wdt[,b_block_1to24  := NULL]
 
-wdt$rx.roids <- factor(rdf$steroids_1to24, labels=c(FALSE, TRUE))
-describe(wdt$rx.roids)
+wdt <- wdt[rdt[,.(steroids_1to24),keyby=id]]
+wdt[,rx.roids := factor(steroids_1to24, labels=c(FALSE, TRUE))]
+wdt[,steroids_1to24  := NULL]
 
-# TODO: 2014-11-12 - [ ] correct fin.24 outliers at 30, 44, 9
-wdt$fin.24 <- rdf$tot_in_1
+# TODO: 2014-11-12 - [ ] correct fin.24 outliers at 30, 44, 9 @roberta-sara
+wdt <- wdt[rdt[,.(tot_in_1),keyby=id]]
+setnames(wdt,'tot_in_1','fin.24')
 describe(wdt$fin.24)
 stem(wdt$fin.24)
 
 # TODO: 2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS
-wdt$fin.cum <- rdf$tot_in_cumul
+wdt <- wdt[rdt[,.(tot_in_cumul),keyby=id]]
+setnames(wdt,'tot_in_cumul','fin.cum')
 describe(wdt$fin.cum)
 stem(wdt$fin.cum)
 
 # NOTE: 2014-11-12 - [ ] looks OK
-wdt$fb.24 <- rdf$fb_1
+wdt <- wdt[rdt[,.(fb_1),keyby=id]]
+setnames(wdt,'fb_1','fb.24')
 describe(wdt$fb.24)
 stem(wdt$fb.24)
 
 # NOTE: 2014-11-12 - [ ] looks OK
-wdt$fb.cum <- rdf$fb_cumul
+wdt <- wdt[rdt[,.(fb_cumul),keyby=id]]
+setnames(wdt,'fb_cumul','fb.cum')
 describe(wdt$fb.cum)
 stem(wdt$fb.cum)
 
 
 # Severity
 describe(rdf$adm_sofa)
-wdt$sofa.0 <- rdf$adm_sofa
+wdt <- wdt[rdt[,.(adm_sofa),keyby=id]]
+setnames(wdt,'adm_sofa','sofa.0')
 describe(rdf$sofa_1)
-wdt$sofa.1 <- rdf$sofa_1
+wdt <- wdt[rdt[,.(sofa_1),keyby=id]]
+setnames(wdt,'sofa_1','sofa.1')
+
 
 # NOTE: 2014-10-13 - error in naming sofa_24 column name
-try(names(rdf)[names(rdf)=='sofa._24'] <- 'sofa_24', silent=FALSE)
-describe(rdf$sofa_24)
-wdt$sofa.24 <- rdf$sofa_24
+try(setnames(rdt,'sofa._24','sofa_24'), silent=FALSE)
+wdt <- wdt[rdt[,.(sofa_24),keyby=id]]
+setnames(wdt,'sofa_24','sofa.24')
 
 # Norad, heart rate etc
 obs <- list(
@@ -172,45 +195,33 @@ obs <- list(
 	c('sed_score', 'sedation')
 	)
 
-# names(rdf)
-# str(wdt)
-
-# TODO: 2014-10-13 - [ ] nested loop: fix
 for (i in 1:length(obs)) {
 
 	suffixes <- c(1, 24)
 	for (j in 1:length(suffixes)) {
 		suffix <- suffixes[j]
-		# print(describe(rdf[paste(obs[[i]][1], '1', sep='_')]))
-		print(paste(obs[[i]][1], j, sep='_'))
 		ob_orig <- paste(obs[[i]][1], suffix, sep='_')
-		print(str(rdf[ob_orig]))
-
 		ob_new <- paste(obs[[i]][2], suffix, sep='.')
-		wdt[,ob_new] <- rdf[ob_orig]
-		print(str(wdt[,ob_new]))
+
+		wdt <- wdt[rdt[,.(get(ob_orig)),keyby=id]]
+		setnames(wdt,'V1',ob_new)
 	}
 
 }
-# str(wdt)
-describe(wdt$sedation.1)
-describe(wdt$sedation.24)
-
+str(wdt)
 
 # Outcomes
-describe(rdf$itu_mortality)
-wdt$mort.itu <- rdf$itu_mortality
+wdt <- wdt[rdt[,.(itu_mortality),keyby=id]]
+setnames(wdt,'itu_mortality','mort.itu')
 
 # NOTE: 2014-10-09 - missing hospital mortality for 63 patients
-describe(rdf$hosp_mortality)
-wdt$mort.hosp <- rdf$hosp_mortality
+wdt <- wdt[rdt[,.(hosp_mortality),keyby=id]]
+setnames(wdt,'hosp_mortality','mort.hosp')
 wdt[,list(.N,mort.hosp.miss = sum(is.na(mort.hosp)) ),hosp]
 
 head(wdt)
 str(wdt)
-str(rdf)
 
 # Save
 save(rdf, wdt, file='../data/working.RData')
-
 

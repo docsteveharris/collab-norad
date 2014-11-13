@@ -1,0 +1,35 @@
+// Thursday 11/13/14 at 06:03PM - 40 files in 0.32 secs
+
+## TODO (8)
+1. vcode/table1_byNorad.R:61       2014-10-13 - [ ] this is not being treated as a catvar @priority(3)
+2. vcode/table1_byNorad.R:81       2014-10-13 - [ ] fix sepsis.site @priority(3)
+3. vcode/readme.md:21              2014-11-13 - [ ] consort diagram @roberta-sara
+4. vcode/readme.md:22              2014-11-13 - [ ] format table 1 from excel data @roberta-sara
+5. vcode/prep_data.R:79            2014-10-13 - [ ] check for ne_start fr 2008? @roberta-sara
+6. vcode/prep_data.R:131           2014-10-13 - [ ] decide which bugs you want reported (will need cleaning) @roberta-sara
+7. vcode/prep_data.R:150           2014-11-12 - [ ] correct fin.24 outliers at 30, 44, 9 @roberta-sara
+8. vcode/prep_data.R:156           2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS
+
+## NOTE (22)
+1. vcode/table1_byHospital.R:54    2014-10-13 - analyse all
+2. vcode/table1_byHospital.R:89    2014-10-12 - you need to have the strata var in the data.table
+3. vcode/table1_byHospital.R:105   2014-10-11 - lapply to sapply since then returns vectors not lists
+4. vcode/table1_byHospital.R:112   2014-10-11 - add these later else strata means you get missing by strata not var
+5. vcode/table1_byHospital.R:207   2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
+6. vcode/table1_byHospital.R:239   2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
+7. vcode/table1_byNorad.R:52       2014-10-13 - analyse all
+8. vcode/table1_byNorad.R:89       2014-10-12 - you need to have the strata var in the data.table
+9. vcode/table1_byNorad.R:105      2014-10-11 - lapply to sapply since then returns vectors not lists
+10. vcode/table1_byNorad.R:112     2014-10-11 - add these later else strata means you get missing by strata not var
+11. vcode/table1_byNorad.R:234     2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
+12. vcode/labbook_v01.R:92         2014-10-09 - missing hospital mortality for 63 patients
+13. vcode/table1_all.R:55          2014-10-13 - analyse all
+14. vcode/table1_all.R:90          2014-10-12 - you need to have the strata var in the data.table
+15. vcode/table1_all.R:106         2014-10-11 - lapply to sapply since then returns vectors not lists
+16. vcode/table1_all.R:113         2014-10-11 - add these later else strata means you get missing by strata not var
+17. vcode/table1_all.R:206         2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
+18. vcode/table1_all.R:235         2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
+19. vcode/prep_data.R:162          2014-11-12 - [ ] looks OK
+20. vcode/prep_data.R:168          2014-11-12 - [ ] looks OK
+21. vcode/prep_data.R:184          2014-10-13 - error in naming sofa_24 column name
+22. vcode/prep_data.R:217          2014-10-09 - missing hospital mortality for 63 patients

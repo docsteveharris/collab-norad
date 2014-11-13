@@ -14,18 +14,23 @@ Steve Harris doc@steveharris.me
 
 # Paper outline
 
-Todo
+## Todo.inbox
 
-- consort diagram @roberta-sara
-- table 1
-    + which variables @roberta-sara
-        * age
-        * sex
-        * hospital
-    + prepare raw table @steve
-    + format prepared table @roberta-sara
+## Todo.now
+
+TODO: 2014-11-13 - [ ] consort diagram @roberta-sara
+TODO: 2014-11-13 - [ ] format table 1 from excel data @roberta-sara
 
 - describe varation
     + mortality variation
     + treatment variation
         * noradrenaline dosing
+
+## Todo.next
+
+
+## Notes
+
+### Figures
+
+- site_sofa_seq.png: shows SOFA score sorted by recruitment date
