@@ -20,6 +20,14 @@
 # - data sheet in ..data/_data_in/6 centres-15-09-14.xls saved as CSV file
 # 2014-10-13
 # - cloned from labbook_141013.R
+# 2014-11-12
+# - added the following fields
+# 	- betablockade in 1st 24h
+# 	- steroids in 1st 24h
+# 	- fluids in in 1st 24h
+# 	- fb in 1st 24h
+# 	- cumulative fluids in
+# 	- cumulative fb
 
 library(Hmisc)
 library(assertthat)
@@ -111,9 +119,38 @@ wdt[,list(.N, pct=.N/nrow(wdt)*100),sepsis.site]
 describe(rdf$bug1)
 describe(rdf$bug2)
 
-# Medications
+# Medications and interventions
 describe(rdf$b_block_hist)
-wdt$pmh.betablock <- rdf$b_block_hist
+wdt$pmh.betablock <- factor(rdf$b_block_hist, labels=c(FALSE, TRUE))
+describe(wdt$pmh.betablock)
+
+str(rdf$b_block_1to24)
+wdt$rx.betablock <- factor(rdf$b_block_1to24, labels=c(FALSE, TRUE))
+describe(wdt$rx.betablock)
+
+wdt$rx.roids <- factor(rdf$steroids_1to24, labels=c(FALSE, TRUE))
+describe(wdt$rx.roids)
+
+# TODO: 2014-11-12 - [ ] correct fin.24 outliers at 30, 44, 9
+wdt$fin.24 <- rdf$tot_in_1
+describe(wdt$fin.24)
+stem(wdt$fin.24)
+
+# TODO: 2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS
+wdt$fin.cum <- rdf$tot_in_cumul
+describe(wdt$fin.cum)
+stem(wdt$fin.cum)
+
+# NOTE: 2014-11-12 - [ ] looks OK
+wdt$fb.24 <- rdf$fb_1
+describe(wdt$fb.24)
+stem(wdt$fb.24)
+
+# NOTE: 2014-11-12 - [ ] looks OK
+wdt$fb.cum <- rdf$fb_cumul
+describe(wdt$fb.cum)
+stem(wdt$fb.cum)
+
 
 # Severity
 describe(rdf$adm_sofa)
@@ -122,9 +159,7 @@ describe(rdf$sofa_1)
 wdt$sofa.1 <- rdf$sofa_1
 
 # NOTE: 2014-10-13 - error in naming sofa_24 column name
-if ('sofa._24') %in% names(rdf) {
-	try(names(rdf)[names(rdf)=='sofa._24'] <- 'sofa_24', silent=FALSE)
-}
+try(names(rdf)[names(rdf)=='sofa._24'] <- 'sofa_24', silent=FALSE)
 describe(rdf$sofa_24)
 wdt$sofa.24 <- rdf$sofa_24
 
@@ -133,7 +168,8 @@ obs <- list(
 	c('ne', 'ne'),
 	c('hr', 'hr'),
 	c('map', 'map'),
-	c('syst_bp', 'bps')
+	c('syst_bp', 'bps'),
+	c('sed_score', 'sedation')
 	)
 
 # names(rdf)
@@ -157,6 +193,8 @@ for (i in 1:length(obs)) {
 
 }
 # str(wdt)
+describe(wdt$sedation.1)
+describe(wdt$sedation.24)
 
 
 # Outcomes
@@ -169,8 +207,10 @@ wdt$mort.hosp <- rdf$hosp_mortality
 wdt[,list(.N,mort.hosp.miss = sum(is.na(mort.hosp)) ),hosp]
 
 head(wdt)
+str(wdt)
+str(rdf)
 
 # Save
-save(wdt, file='../data/working.RData')
+save(rdf, wdt, file='../data/working.RData')
 
 
