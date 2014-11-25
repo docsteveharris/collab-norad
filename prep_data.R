@@ -222,6 +222,15 @@ wdt[,list(.N,mort.hosp.miss = sum(is.na(mort.hosp)) ),hosp]
 head(wdt)
 str(wdt)
 
+# Length of stay
+str(rdt)
+wdt <- wdt[rdt[,.(itu_los),keyby=id]]
+setnames(wdt,'itu_los','los.itu')
+# TODO: 2014-11-23 - [ ] converting to numeric; check this is OK
+table(wdt$los.itu)
+wdt[,los.itu := ifelse(los.itu=="<1", 0, as.numeric(los.itu))]
+describe(wdt$los.itu)
+
 # Save
 save(rdf, wdt, file='../data/working.RData')
 
