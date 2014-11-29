@@ -29,18 +29,10 @@
 # 	- cumulative fluids in
 # 	- cumulative fb
 
-library(Hmisc)
-library(assertthat)
-library(gmodels)
-library(data.table)
-
-# Assuming ..data/_data_in/6 centres-15-09-14.xls is the most current file
-warning("Check:\nAssuming ..data/_data_in/6 centres-15-09-14.xls is the most current file")
-raw_csv_file = '../data/working_140915.csv'
-rdf <- read.table(raw_csv_file,
-	sep = ",", quote="\"", header=TRUE,
-	strip.white=TRUE, stringsAsFactors=FALSE )
-str(rdf)
+#  ====================================================
+#  = Load raw data and all dependencies and functions =
+#  ====================================================
+source(file="load.R")
 
 # Drop if missing id (there's a blank row at the end of the sheet)
 tail(data.frame(rdf$id, rdf$age))
@@ -171,6 +163,15 @@ setnames(wdt,'fb_cumul','fb.cum')
 describe(wdt$fb.cum)
 stem(wdt$fb.cum)
 
+# Total cumulative fluid balance
+# 1--4 days monitored
+describe(rdt$n_days_fb)
+wdt <- wdt[rdt[,.(n_days_fb),keyby=id]]
+setnames(wdt,'n_days_fb','fb.days')
+describe(wdt$fb.days)
+
+wdt[,fb.mean := fb.cum / fb.days]
+stem(wdt$fb.mean)
 
 # Severity
 describe(rdf$adm_sofa)
@@ -186,13 +187,21 @@ try(setnames(rdt,'sofa._24','sofa_24'), silent=FALSE)
 wdt <- wdt[rdt[,.(sofa_24),keyby=id]]
 setnames(wdt,'sofa_24','sofa.24')
 
+# NOTE: 2014-11-29 - [ ] pao2 doesn't end in _1 or _24
+setnames(rdt, "pao2_1kpa", "pao2.kpa_1")
+setnames(rdt, "pao2_24kpa", "pao2.kpa_24")
+
 # Norad, heart rate etc
 obs <- list(
 	c('ne', 'ne'),
 	c('hr', 'hr'),
 	c('map', 'map'),
 	c('syst_bp', 'bps'),
-	c('sed_score', 'sedation')
+	c('lactate', 'lac'),
+	c('pao2.kpa', 'pao2'),
+	c('fio2', 'fio2'),
+	c('sed_score', 'sedation'),
+	c('rrt', 'rrt')
 	)
 
 for (i in 1:length(obs)) {
@@ -210,6 +219,22 @@ for (i in 1:length(obs)) {
 }
 str(wdt)
 
+
+# Checks
+# ------
+# These seem OK
+lapply(wdt[,.(lac.1, lac.24)], check.cont)
+lapply(wdt[,.(fio2.1, fio2.24)], check.cont)
+lapply(wdt[,.(pao2.1, pao2.24)], check.cont)
+
+# Now generate P:F ratios
+wdt[, pf.1 := pao2.1 / fio2.1]
+wdt[, pf.24 := pao2.24 / fio2.24]
+lapply(wdt[,.(pf.1, pf.24)], check.cont)
+
+# RRT use
+lapply(wdt[,.(rrt.1, rrt.24)], check.cat)
+
 # Outcomes
 wdt <- wdt[rdt[,.(itu_mortality),keyby=id]]
 setnames(wdt,'itu_mortality','mort.itu')
@@ -219,11 +244,7 @@ wdt <- wdt[rdt[,.(hosp_mortality),keyby=id]]
 setnames(wdt,'hosp_mortality','mort.hosp')
 wdt[,list(.N,mort.hosp.miss = sum(is.na(mort.hosp)) ),hosp]
 
-head(wdt)
-str(wdt)
-
 # Length of stay
-str(rdt)
 wdt <- wdt[rdt[,.(itu_los),keyby=id]]
 setnames(wdt,'itu_los','los.itu')
 # TODO: 2014-11-23 - [ ] converting to numeric; check this is OK
@@ -231,6 +252,8 @@ table(wdt$los.itu)
 wdt[,los.itu := ifelse(los.itu=="<1", 0, as.numeric(los.itu))]
 describe(wdt$los.itu)
 
+str(wdt)
+
 # Save
-save(rdf, wdt, file='../data/working.RData')
+save(wdt, file='../data/cleaned.Rdata')
 

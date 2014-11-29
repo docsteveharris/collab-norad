@@ -32,18 +32,10 @@
 # - duplicated from table1_all.R
 
 
-#  =====================
-#  = Load dependencies =
-#  =====================
-# Install latest version
-# install.packages('data.table', type='source') (use source version to get latest)
-# update.packages(type='source')
-library(data.table)
-library(reshape2)
-library(XLConnect)
-
 rm(list=ls(all=TRUE))
-load(file='../data/working.RData')
+source(file="load.R")
+load(file='../data/cleaned.Rdata')
+
 wdt.original <- wdt
 wdt$sample_N <- 1
 
@@ -60,12 +52,16 @@ vars <- c(
 	'male', 'age', 'weight', 'height', 'bmi',
 	'sepsis.site', 'pmh.betablock', 
 	'sofa.0', 'sofa.1', 'sofa.24',
-	'ne.1', 'ne.24',
+	'lac.1', 'lac.24',
 	'hr.1', 'hr.24',
 	'map.1', 'map.24',
 	'bps.1', 'bps.24',
+	'pf.1', 'pf.24',
+	'rrt.1', 'rrt.24',
+	'ne.1', 'ne.24',
 	'rx.betablock', 'rx.roids',
-	'fin.24', 'fb.24',
+	'fin.24', 'fb.24', 'fb.mean',
+	'los.itu',
 	'mort.itu', 'mort.hosp'
 	)
 
@@ -80,6 +76,7 @@ if (is.na(vars.strata)) {
 vars.factor <- c(
 	'male', 'sepsis.site', 'pmh.betablock',
 	'rx.betablock', 'rx.roids',
+	'rrt.1', 'rrt.24',
 	'mort.itu', 'mort.hosp'
 	)
 
@@ -127,9 +124,7 @@ t1.contvars <- function(var, strata, this_dt) {
 	]
 }
 # t1.contvars(c('lactate', 'bpsys'), c('room_cmp', 'sex'), wdt)
-t1.contvars('sofa.1', vars.strata, wdt)
-vars.cont
-str(wdt)
+# t1.contvars('sofa.1', vars.strata, wdt)
 
 # Now do this for all the continuous vars
 t1.contvars.results <- t1.contvars(vars.cont, vars.strata, wdt)

@@ -31,6 +31,8 @@
 # - duplicated from paper-spotearly/labbook_table1.R
 # 2014-11-12
 # - added columns and data as per request
+# 2014-11-29
+# - adding further vars
 
 
 #  =====================
@@ -39,12 +41,11 @@
 # Install latest version
 # install.packages('data.table', type='source') (use source version to get latest)
 # update.packages(type='source')
-library(data.table)
-library(reshape2)
-library(XLConnect)
 
 rm(list=ls(all=TRUE))
-load(file='../data/working.RData')
+source(file="load.R")
+load(file='../data/cleaned.R')
+
 wdt.original <- wdt
 wdt$sample_N <- 1
 
@@ -61,12 +62,16 @@ vars <- c(
 	'male', 'age', 'weight', 'height', 'bmi',
 	'sepsis.site', 'pmh.betablock', 
 	'sofa.0', 'sofa.1', 'sofa.24',
-	'ne.1', 'ne.24',
+	'lac.1', 'lac.24',
 	'hr.1', 'hr.24',
 	'map.1', 'map.24',
 	'bps.1', 'bps.24',
+	'pf.1', 'pf.24',
+	'rrt.1', 'rrt.24',
+	'ne.1', 'ne.24',
 	'rx.betablock', 'rx.roids',
-	'fin.24', 'fb.24',
+	'fin.24', 'fb.24', 'fb.mean',
+	'los.itu',
 	'mort.itu', 'mort.hosp'
 	)
 
@@ -81,6 +86,7 @@ if (is.na(vars.strata)) {
 vars.factor <- c(
 	'male', 'sepsis.site', 'pmh.betablock',
 	'rx.betablock', 'rx.roids',
+	'rrt.1', 'rrt.24',
 	'mort.itu', 'mort.hosp'
 	)
 
@@ -221,7 +227,7 @@ t1.melt <- melt(t1.results, id=c(vars.strata, c('varname', 'level')))
 setnames(t1.melt, vars.strata, 'strata')
 
 # Drop empty strata from the table
-wide.raw <- dcast.data.table(t1.melt, varname + level ~ strata + variable,
+t1.wide.raw <- dcast.data.table(t1.melt, varname + level ~ strata + variable,
 	subset = .(!is.na(strata)))
 
 t1.wide.raw[, table.order := which(vars == varname), by=varname]

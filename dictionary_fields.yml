@@ -1,0 +1,30 @@
+# author: Steve Harris
+# date: 2014-10-14
+# subject: Data specification for noradrenaline / europe study
+#
+# Readme
+# ======
+#
+# Todo
+# ====
+#
+# Log
+# ===
+# 2014-10-14
+# - file by cloning from usr/lib/uni/dictionary_fields.yml
+# - change structure so that this is a dictionary rather than a list
+
+bpdia:
+  varlab: Diastolic blood pressure
+bpsys:
+  varlab: Systolic blood pressure
+map:
+  varlab: Mean arterial blood pressure
+hrate:
+  varlab: Heart rate
+ne:
+  varlab: noradrenaline
+  unit_lab: mcg/kg/min
+  chk_min: 0
+  chk_max: 2
+

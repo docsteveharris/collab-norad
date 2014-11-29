@@ -9,15 +9,6 @@
 # Todo
 # ====
 
-# *- [X] TODO: add by strata functionality
-# *- [X] TODO: calculate percentages for categories
-# *- [X] TODO: add total missing by category
-# *- [X] TODO: total missing over strata for continuous
-# *- [X] TODO: reshape strata if they exist to wide
-# *- [X] TODO: needs to export
-
-# TODO: 2014-10-13 - [ ] convert this to 3 way comparison by norad threshold
-
 # Notes
 #
 
@@ -67,7 +58,7 @@ vars.strata <-  'ne.1.cut'
 
 vars <- c(
 	'male', 'age', 'weight', 'height', 'bmi',
-	# 'sepsis.site', TODO: 2014-10-13 - [ ] this is not being treated as a catvar
+	# 'sepsis.site', TODO: 2014-10-13 - [ ] this is not being treated as a catvar @priority(3)
 	'pmh.betablock', 
 	'sofa.0', 'sofa.1', 'sofa.24',
 	'ne.1', 'ne.24',
@@ -87,7 +78,7 @@ if (is.na(vars.strata)) {
 # Define the characteristics of the variables
 vars.factor <- c(
 	'male',
-	# 'sepsis.site', TODO: 2014-10-13 - [ ] fix sepsis.site
+	# 'sepsis.site', TODO: 2014-10-13 - [ ] fix sepsis.site @priority(3)
 	'pmh.betablock',
 	'mort.itu', 'mort.hosp'
 	)
@@ -111,7 +102,6 @@ wdt[, (vars.factor) :=lapply(.SD, as.factor), .SDcols=vars.factor]
 vars.factor <- vars.factor[!vars.factor %in% vars.strata]
 
 # Now produce the summaries for the continuous vars
-# TODO: 2014-10-10 - add n, p.miss skew kurt, q5 q95
 # NOTE: 2014-10-11 - lapply to sapply since then returns vectors not lists
 
 t1.contvars <- function(var, strata, this_dt) {
@@ -181,8 +171,6 @@ t1.catvars.results <- lapply(vars.factor, function(var) t1.catvars(var, vars.str
 t1.catvars.results <- do.call(rbind, t1.catvars.results)
 t1.catvars.results
 
-
-# TODO: 2014-10-11 - tidy up calculation of missing
 t1.catvars.results[, miss.n:=NULL, ]
 t1.catvars.results[is.na(level), miss.n := lapply(.SD, function(x) sum(N)), by=varname]
 t1.catvars.results[, miss.n := ifelse(is.na(miss.n), 0, miss.n) ]

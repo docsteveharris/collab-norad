@@ -26,6 +26,9 @@ TODO: 2014-11-13 - [ ] format table 1 from excel data @roberta-sara
     + treatment variation
         * noradrenaline dosing
 
+TODO: 2014-11-23 - [ ] compare mortality by site
+TODO: 2014-11-23 - [ ] compare LOS by site
+
 ## Todo.next
 
 

@@ -1,0 +1,11 @@
+# Requests by email from 2014-11-25
+
+TODO: 2014-11-29 - [ ] email requests
+
+- ventilation parameters @done(2014-11-29)
+- cumulative fluid balance in 1st 4d @done(2014-11-29)
+- lactate measuremenents by centre @done(2014-11-29)
+- cardiac output monitoring use
+- temperature 
+- RRT use @done(2014-11-29)
+
