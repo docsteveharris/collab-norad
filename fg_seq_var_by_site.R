@@ -15,24 +15,24 @@
 # 2014-10-13
 # - file created
 
-#  =====================
-#  = Load dependencies =
-#  =====================
-library(data.table) # NB setnames and setorder only exist in >v1.9 library(ggplot2)
-library(reshape2)
-library(ggplot2)
-
 rm(list=ls(all=TRUE))
-load(file='../data/working.RData')
+source(file="load.R")
+load(file='../data/cleaned.Rdata')
+
+
 wdt.original <- wdt
 wdt$sample_N <- 1
 str(wdt)
 
 # Reshape to long for norad and map
+# NOTE: 2014-11-29 - [ ] to make melt work with fb.mean you need to append .1
+setnames(wdt, 'fb.mean', 'fbmean.1')
 wdt.melt <- melt(wdt[,list(hosp, id.hosp,
 	ne.1, ne.24, map.1, map.24, hr.1, hr.24,
 	sedation.1, sedation.24,
-	sofa.1, sofa.24, fin.24, fb.24)], id.vars=c('hosp', 'id.hosp'))
+	lac.1, lac.24,
+	pf.1, pf.24,
+	sofa.1, sofa.24, fin.24, fb.24, fbmean.1)], id.vars=c('hosp', 'id.hosp'))
 wdt.melt[,variable := as.character(variable)]
 str(wdt.melt)
 wdt.melt[, var := gsub("([a-z]+)\\.([0-9]+)", "\\1", variable, perl=TRUE)]
@@ -214,3 +214,60 @@ ggsave(
 	width=8,
 	height=3
 	)
+
+# FB mean (cumulative divided by number days)
+describe(wdt2$fb)
+g_fb.mean <- ggplot(wdt2, aes(x=id.hosp, y=fbmean))
+g_fb.mean +
+	facet_grid(. ~ hosp, labeller = label_both) +
+	geom_point(alpha=0.3, size=1.5) +
+	geom_smooth(method="lm") +
+	coord_cartesian(xlim = c(0, 110), ylim = c(0, 5000)) +
+	labs(list(
+		title = 'Mean fluid balance by patient sequence',
+		x = 'Patient ID',
+		y = 'Fluid (mls)'))
+ggsave(
+	filename = '../outputs/figs/site_fbmean_seq.png',
+	width=8,
+	height=3
+	)
+
+
+# Lactate
+describe(wdt2$lac)
+g_lac <- ggplot(wdt2, aes(x=id.hosp, y=lac))
+g_lac +
+	facet_grid(time  ~ hosp, labeller = label_both) +
+	geom_point(alpha=0.3, size=1.5) +
+	geom_smooth(method="lm") +
+	coord_cartesian(xlim = c(0, 110), ylim = c(0, 10)) +
+	labs(list(
+		title = 'Lactate by patient sequence',
+		x = 'Patient ID',
+		y = 'Lactate (mmol/l)'))
+ggsave(
+	filename = '../outputs/figs/site_lac_seq.png',
+	width=8,
+	height=3
+	)
+
+
+# PF ratio
+describe(wdt2$PF)
+g_PF <- ggplot(wdt2, aes(x=id.hosp, y=pf))
+g_PF +
+	facet_grid(time ~ hosp, labeller = label_both) +
+	geom_point(alpha=0.3, size=1.5) +
+	geom_smooth(method="lm") +
+	coord_cartesian(xlim = c(0, 110), ylim = c(0, 100)) +
+	labs(list(
+		title = 'PF ratio by patient sequence',
+		x = 'Patient ID',
+		y = 'PF ratio (kPa)'))
+ggsave(
+	filename = '../outputs/figs/site_PF_seq.png',
+	width=8,
+	height=3
+	)
+
