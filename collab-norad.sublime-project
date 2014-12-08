@@ -2,12 +2,45 @@
 	"folders":
 	[
 		{
-			"follow_symlinks": true,
+			"file_exclude_patterns":
+			[
+				".RData",
+				".Rhistory"
+			],
+			"folder_exclude_patterns":
+			[
+				".Rproj.user"
+			],
 			"path": "."
 		},
 		{
-			"follow_symlinks": true,
-			"path": "/Users/steve/aor/project-academic/collab-norad/data"
+			"path": "/Users/steve/aor/project-academic/collab-norad/slides"
+		},
+		{
+			"path": "/Users/steve/aor/project-academic/collab-norad/outputs"
 		}
-	]
+	],
+	"settings":
+	{
+		"todoreview":
+		{
+			"exclude_files":
+			[
+				"*.sublime-workspace",
+				"*.sublime-project",
+				"*.Rproj.user",
+				"*.RData",
+				"*.Rhistory"
+			],
+			"exclude_folders":
+			[
+				"*.git*",
+				"vcode.Rproj",
+				".Rproj.user",
+				".Rdata",
+				".Rhistory",
+				"data"
+			]
+		}
+	}
 }

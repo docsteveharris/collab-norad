@@ -33,6 +33,8 @@ wdt.melt <- melt(wdt[,list(hosp, id.hosp,
 	lac.1, lac.24,
 	pf.1, pf.24,
 	sofa.1, sofa.24, fin.24, fb.24, fbmean.1)], id.vars=c('hosp', 'id.hosp'))
+# TODO: 2014-11-30 - [ ] need to convert melt table back to data.table (check)
+wdt.melt <- data.table(wdt.melt)
 wdt.melt[,variable := as.character(variable)]
 str(wdt.melt)
 wdt.melt[, var := gsub("([a-z]+)\\.([0-9]+)", "\\1", variable, perl=TRUE)]

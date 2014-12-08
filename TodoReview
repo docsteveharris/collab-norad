@@ -1,35 +1,68 @@
-// Thursday 11/13/14 at 06:03PM - 40 files in 0.32 secs
+// Sunday 11/30/14 at 09:19AM - 31 files in 0.13 secs
 
-## TODO (8)
-1. vcode/table1_byNorad.R:61       2014-10-13 - [ ] this is not being treated as a catvar @priority(3)
-2. vcode/table1_byNorad.R:81       2014-10-13 - [ ] fix sepsis.site @priority(3)
-3. vcode/readme.md:21              2014-11-13 - [ ] consort diagram @roberta-sara
-4. vcode/readme.md:22              2014-11-13 - [ ] format table 1 from excel data @roberta-sara
-5. vcode/prep_data.R:79            2014-10-13 - [ ] check for ne_start fr 2008? @roberta-sara
-6. vcode/prep_data.R:131           2014-10-13 - [ ] decide which bugs you want reported (will need cleaning) @roberta-sara
-7. vcode/prep_data.R:150           2014-11-12 - [ ] correct fin.24 outliers at 30, 44, 9 @roberta-sara
-8. vcode/prep_data.R:156           2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS
+## TODO (31)
+1. collab-norad/readme.md:30              2014-10-13 - [ ] this is not being treated as a catvar @priority(3)
+2. collab-norad/readme.md:31              2014-10-13 - [ ] fix sepsis.site @priority(3)
+3. collab-norad/table1_byNorad.R:61       2014-10-13 - [ ] this is not being treated as a catvar @priority(3)
+4. collab-norad/table1_byNorad.R:81       2014-10-13 - [ ] fix sepsis.site @priority(3)
+5. collab-norad/readme.md:15              2014-11-30 - [ ] @steve check pattern of intubation by site (proportions)
+6. collab-norad/readme.md:16              2014-11-30 - [ ] @steve report sample size by site
+7. collab-norad/readme.md:17              2014-11-30 - [ ] @steve noradrenaline and heart rate;
+8. collab-norad/readme.md:18              2014-11-30 - [ ] @steve heart rate and noradrenaline (cut at 95), on mortality (interacton)
+9. collab-norad/readme.md:19              2014-11-30 - [ ] @steve lactate and mortality (compare at 1hr and 24hr); running smooth (no model initally ?inflexion)
+10. collab-norad/readme.md:20             2014-11-30 - [ ] @merv chase Paris
+11. collab-norad/readme.md:21             2014-11-30 - [ ] @merv check re beta-block in Belfast
+12. collab-norad/readme.md:22             2014-11-30 - [ ] @merv check re physiology in Rome
+13. collab-norad/readme.md:23             2014-11-30 - [ ] @roberta-sara add in Paris data
+14. collab-norad/readme.md:24             2014-11-30 - [ ] @roberta-sara add in Tommy's data
+15. collab-norad/readme.md:28             2014-11-30 - [ ] @steve cardiac output monitoring use
+16. collab-norad/readme.md:29             2014-11-30 - [ ] @steve temperature
+17. collab-norad/readme.md:32             2014-10-13 - [ ] @roberta-sara check for ne_start fr 2008?
+18. collab-norad/readme.md:33             2014-10-13 - [ ] @roberta-sara decide which bugs you want reported (will need cleaning)
+19. collab-norad/readme.md:34             2014-11-12 - [ ] @roberta-sara correct fin.24 outliers at 30, 44, 9
+20. collab-norad/readme.md:35             2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS
+21. collab-norad/readme.md:36             2014-11-23 - [ ] converting to numeric; check this is OK
+22. collab-norad/readme.md:37             2014-11-29 - [ ] email requests @done(2014-11-30)
+23. collab-norad/readme.md:38             2014-10-13 - [ ] @roberta-sara check for ne_start fr 2008?
+24. collab-norad/fg_seq_var_by_site.R:36  2014-11-30 - [ ] need to convert melt table back to data.table (check)
+25. collab-norad/fg_box_var_by_site.R:40  2014-11-30 - [ ] need to convert melt table back to data.table
+26. collab-norad/clean.R:71               2014-10-13 - [ ] check for ne_start fr 2008? @roberta-sara
+27. collab-norad/clean.R:123              2014-10-13 - [ ] decide which bugs you want reported (will need cleaning) @roberta-sara
+28. collab-norad/clean.R:142              2014-11-12 - [ ] correct fin.24 outliers at 30, 44, 9 @roberta-sara
+29. collab-norad/clean.R:148              2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS
+30. collab-norad/clean.R:250              2014-11-23 - [ ] converting to numeric; check this is OK
+31. t/797E23ED:2                          2014-10-13 - [ ] check for ne_start fr 2008? @roberta-sara\ndescribe(wdt$ne.start.dt)\n\n# Now start adding variables\nwdt[,hosp := factor(tolower(gsub(\"([a-z]?)-[0-9]+\",\"\\\\1\", id.original)))]\nstr(wdt)\ndescribe(wdt$hosp)\nassert_that(\n\tnrow(wdt)\n\t- sum(wdt$hosp %in% c('an', 'rome', 'blf', 'lee', 'rlh', 'uclh'))\n\t== 0\n\t)\n\n# Now make your own ordered unique ID (overall)\nsetorder(wdt, hosp, ne.start.dt)\nwdt$id <- c(1:nrow(wdt))\nhead(wdt)\ndescribe(wdt$id)\n\n# Now make your own ordered unique ID (by hosp)\nwdt[, id.hosp := c(1:nrow(.SD)), by=hosp]\ndescribe(wdt$id.hosp)\n\n# Patient characteristics\nstr(wdt)\nsetkey(wdt, id.original)\nwdt <- wdt[rdt[,.(gender),keyby=id]]\nwdt[,male \t:= ifelse(rdf$gender   == 1, 1, 0)]\nwdt[,gender := NULL]\ndescribe(wdt$male)\n\nwdt <- wdt[rdt[,.(age),keyby=id]]\ndescribe(wdt$age)\nstem(wdt$age)\n\ndescribe(rdf$height)\nwdt <- wdt[rdt[,.(height),keyby=id]]\nstem(wdt$height)\n\ndescribe(rdf$weight)\nwdt <- wdt[rdt[,.(weight),keyby=id]]\nstem(wdt$weight)\n\ndescribe(rdf$bmi)\nwdt <- wdt[rdt[,.(bmi),keyby=id]]\nstem(wdt$bmi)\n\n# Sepsis\ndescribe(rdf$source_infection)\nwdt <- wdt[rdt[,.(source_infection),keyby=id]]\nsetnames(wdt,'source_infection','sepsis.site')\n\n# TODO: 2014-10-13 - [ ] decide which bugs you want reported (will need cleaning) @roberta-sara\ndescribe(rdf$bug1)\ndescribe(rdf$bug2)\n\n# Medications and interventions\ndescribe(rdt$b_block_history)\nwdt <- wdt[rdt[,.(b_block_history),keyby=id]]\nwdt[,pmh.betablock := factor(b_block_history, labels=c(FALSE, TRUE))]\nwdt[,b_block_history  := NULL]\nstr(wdt)\n\nwdt <- wdt[rdt[,.(b_block_1to24),keyby=id]]\nwdt[,rx.betablock := factor(b_block_1to24, labels=c(FALSE, TRUE))]\nwdt[,b_block_1to24  := NULL]\n\nwdt <- wdt[rdt[,.(steroids_1to24),keyby=id]]\nwdt[,rx.roids := factor(steroids_1to24, labels=c(FALSE, TRUE))]\nwdt[,steroids_1to24  := NULL]\n\n# TODO: 2014-11-12 - [ ] correct fin.24 outliers at 30, 44, 9 @roberta-sara\nwdt <- wdt[rdt[,.(tot_in_1),keyby=id]]\nsetnames(wdt,'tot_in_1','fin.24')\ndescribe(wdt$fin.24)\nstem(wdt$fin.24)\n\n# TODO: 2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS\nwdt <- wdt[rdt[,.(tot_in_cumul),keyby=id]]\nsetnames(wdt,'tot_in_cumul','fin.cum')\ndescribe(wdt$fin.cum)\nstem(wdt$fin.cum)\n\n# NOTE: 2014-11-12 - [ ] looks OK\nwdt <- wdt[rdt[,.(fb_1),keyby=id]]\nsetnames(wdt,'fb_1','fb.24')\ndescribe(wdt$fb.24)\nstem(wdt$fb.24)\n\n# NOTE: 2014-11-12 - [ ] looks OK\nwdt <- wdt[rdt[,.(fb_cumul),keyby=id]]\nsetnames(wdt,'fb_cumul','fb.cum')\ndescribe(wdt$fb.cum)\nstem(wdt$fb.cum)\n\n\n# Severity\ndescribe(rdf$adm_sofa)\nwdt <- wdt[rdt[,.(adm_sofa),keyby=id]]\nsetnames(wdt,'adm_sofa','sofa.0')\ndescribe(rdf$sofa_1)\nwdt <- wdt[rdt[,.(sofa_1),keyby=id]]\nsetnames(wdt,'sofa_1','sofa.1')\n\n\n# NOTE: 2014-10-13 - error in naming sofa_24 column name\ntry(setnames(rdt,'sofa._24','sofa_24'), silent=FALSE)\nwdt <- wdt[rdt[,.(sofa_24),keyby=id]]\nsetnames(wdt,'sofa_24','sofa.24')\n\n# Norad, heart rate etc\nobs <- list(\n\tc('ne', 'ne'),\n\tc('hr', 'hr'),\n\tc('map', 'map'),\n\tc('syst_bp', 'bps'),\n\tc('sed_score', 'sedation')\n\t)\n\nfor (i in 1:length(obs)) {\n\n\tsuffixes <- c(1, 24)\n\tfor (j in 1:length(suffixes)) {\n\t\tsuffix <- suffixes[j]\n\t\tob_orig <- paste(obs[[i]][1], suffix, sep='_')\n\t\tob_new <- paste(obs[[i]][2], suffix, sep='.')\n\n\t\twdt <- wdt[rdt[,.(get(ob_orig)),keyby=id]]\n\t\tsetnames(wdt,'V1',ob_new)\n\t}\n\n}\nstr(wdt)\n\n# Outcomes\nwdt <- wdt[rdt[,.(itu_mortality),keyby=id]]\nsetnames(wdt,'itu_mortality','mort.itu')\n\n# NOTE: 2014-10-09 - missing hospital mortality for 63 patients\nwdt <- wdt[rdt[,.(hosp_mortality),keyby=id]]\nsetnames(wdt,'hosp_mortality','mort.hosp')\nwdt[,list(.N,mort.hosp.miss = sum(is.na(mort.hosp)) ),hosp]\n\nhead(wdt)\nstr(wdt)\n\n# Length of stay\nstr(rdt)\nwdt <- wdt[rdt[,.(itu_los),keyby=id]]\nsetnames(wdt,'itu_los','los.itu')\n# TODO: 2014-11-23 - [ ] converting to numeric; check this is OK\ntable(wdt$los.itu)\nwdt[,los.itu := ifelse(los.itu==\"<1\", 0, as.numeric(los.itu))]\ndescribe(wdt$los.itu)\n\n# Save\nsave(rdf, wdt, file='../data/working.RData')\n\n",
 
-## NOTE (22)
-1. vcode/table1_byHospital.R:54    2014-10-13 - analyse all
-2. vcode/table1_byHospital.R:89    2014-10-12 - you need to have the strata var in the data.table
-3. vcode/table1_byHospital.R:105   2014-10-11 - lapply to sapply since then returns vectors not lists
-4. vcode/table1_byHospital.R:112   2014-10-11 - add these later else strata means you get missing by strata not var
-5. vcode/table1_byHospital.R:207   2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
-6. vcode/table1_byHospital.R:239   2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
-7. vcode/table1_byNorad.R:52       2014-10-13 - analyse all
-8. vcode/table1_byNorad.R:89       2014-10-12 - you need to have the strata var in the data.table
-9. vcode/table1_byNorad.R:105      2014-10-11 - lapply to sapply since then returns vectors not lists
-10. vcode/table1_byNorad.R:112     2014-10-11 - add these later else strata means you get missing by strata not var
-11. vcode/table1_byNorad.R:234     2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
-12. vcode/labbook_v01.R:92         2014-10-09 - missing hospital mortality for 63 patients
-13. vcode/table1_all.R:55          2014-10-13 - analyse all
-14. vcode/table1_all.R:90          2014-10-12 - you need to have the strata var in the data.table
-15. vcode/table1_all.R:106         2014-10-11 - lapply to sapply since then returns vectors not lists
-16. vcode/table1_all.R:113         2014-10-11 - add these later else strata means you get missing by strata not var
-17. vcode/table1_all.R:206         2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
-18. vcode/table1_all.R:235         2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
-19. vcode/prep_data.R:162          2014-11-12 - [ ] looks OK
-20. vcode/prep_data.R:168          2014-11-12 - [ ] looks OK
-21. vcode/prep_data.R:184          2014-10-13 - error in naming sofa_24 column name
-22. vcode/prep_data.R:217          2014-10-09 - missing hospital mortality for 63 patients
+## NOTE (32)
+1. collab-norad/fg_seq_var_by_site.R:28   2014-11-29 - [ ] to make melt work with fb.mean you need to append .1
+2. collab-norad/fg_box_var_by_site.R:31   2014-11-29 - [ ] to make melt work with fb.mean you need to append .1
+3. collab-norad/clean.R:154               2014-11-12 - [ ] looks OK
+4. collab-norad/clean.R:160               2014-11-12 - [ ] looks OK
+5. collab-norad/clean.R:185               2014-10-13 - error in naming sofa_24 column name
+6. collab-norad/clean.R:190               2014-11-29 - [ ] pao2 doesn't end in _1 or _24
+7. collab-norad/clean.R:242               2014-10-09 - missing hospital mortality for 63 patients
+8. collab-norad/labbook_v01.R:92          2014-10-09 - missing hospital mortality for 63 patients
+9. collab-norad/load.R:52                 2014-11-29 - [ ] specific analysis and reporting functions do not belong here
+10. collab-norad/sublime2stata.do:47      2014-10-13 - analyse all
+11. collab-norad/sublime2stata.do:87      2014-10-12 - you need to have the strata var in the data.table
+12. collab-norad/sublime2stata.do:103     2014-10-11 - lapply to sapply since then returns vectors not lists
+13. collab-norad/sublime2stata.do:110     2014-10-11 - add these later else strata means you get missing by strata not var
+14. collab-norad/sublime2stata.do:203     2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
+15. collab-norad/sublime2stata.do:235     2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
+16. collab-norad/table1_all.R:56          2014-10-13 - analyse all
+17. collab-norad/table1_all.R:96          2014-10-12 - you need to have the strata var in the data.table
+18. collab-norad/table1_all.R:112         2014-10-11 - lapply to sapply since then returns vectors not lists
+19. collab-norad/table1_all.R:119         2014-10-11 - add these later else strata means you get missing by strata not var
+20. collab-norad/table1_all.R:212         2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
+21. collab-norad/table1_all.R:241         2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
+22. collab-norad/table1_byHospital.R:46   2014-10-13 - analyse all
+23. collab-norad/table1_byHospital.R:86   2014-10-12 - you need to have the strata var in the data.table
+24. collab-norad/table1_byHospital.R:102  2014-10-11 - lapply to sapply since then returns vectors not lists
+25. collab-norad/table1_byHospital.R:109  2014-10-11 - add these later else strata means you get missing by strata not var
+26. collab-norad/table1_byHospital.R:202  2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
+27. collab-norad/table1_byHospital.R:234  2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause
+28. collab-norad/table1_byNorad.R:52      2014-10-13 - analyse all
+29. collab-norad/table1_byNorad.R:89      2014-10-12 - you need to have the strata var in the data.table
+30. collab-norad/table1_byNorad.R:105     2014-10-11 - lapply to sapply since then returns vectors not lists
+31. collab-norad/table1_byNorad.R:112     2014-10-11 - add these later else strata means you get missing by strata not var
+32. collab-norad/table1_byNorad.R:234     2014-10-11 - ifelse returns NA if you ask NA == 1 rather than the else clause

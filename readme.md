@@ -8,32 +8,51 @@ Steve Harris doc@steveharris.me
 
 - please be systematic about naming files and variables
 
-# Deadlines
+# Issues
 
-- leaving UCL 26 Sep
+## From phone call 2014-11-30
+
+TODO: 2014-11-30 - [ ] @steve check pattern of intubation by site (proportions)
+TODO: 2014-11-30 - [ ] @steve report sample size by site
+TODO: 2014-11-30 - [ ] @steve noradrenaline and heart rate;
+TODO: 2014-11-30 - [ ] @steve heart rate and noradrenaline (cut at 95), on mortality (interacton)
+TODO: 2014-11-30 - [ ] @steve lactate and mortality (compare at 1hr and 24hr); running smooth (no model initally ?inflexion)
+TODO: 2014-11-30 - [ ] @merv chase Paris
+TODO: 2014-11-30 - [ ] @merv check re beta-block in Belfast
+TODO: 2014-11-30 - [ ] @merv check re physiology in Rome
+TODO: 2014-11-30 - [ ] @roberta-sara add in Paris data
+TODO: 2014-11-30 - [ ] @roberta-sara add in Tommy's data
+
+## General
+
+TODO: 2014-11-30 - [ ] @steve cardiac output monitoring use
+TODO: 2014-11-30 - [ ] @steve temperature
+TODO: 2014-10-13 - [ ] this is not being treated as a catvar @priority(3)
+TODO: 2014-10-13 - [ ] fix sepsis.site @priority(3)
+TODO: 2014-10-13 - [ ] @roberta-sara check for ne_start fr 2008?
+TODO: 2014-10-13 - [ ] @roberta-sara decide which bugs you want reported (will need cleaning)
+TODO: 2014-11-12 - [ ] @roberta-sara correct fin.24 outliers at 30, 44, 9
+TODO: 2014-11-12 - [ ] correct fin.cum outliers at 12.2 -- 180 ? or correct for LOS
+TODO: 2014-11-23 - [ ] converting to numeric; check this is OK
+TODO: 2014-11-29 - [ ] email requests @done(2014-11-30)
+TODO: 2014-10-13 - [ ] @roberta-sara check for ne_start fr 2008?
+
+
 
 # Paper outline
 
-## Todo.inbox
-
-## Todo.now
-
-TODO: 2014-11-13 - [ ] consort diagram @roberta-sara
-TODO: 2014-11-13 - [ ] format table 1 from excel data @roberta-sara
-
-- describe varation
-    + mortality variation
-    + treatment variation
-        * noradrenaline dosing
-
-TODO: 2014-11-23 - [ ] compare mortality by site
-TODO: 2014-11-23 - [ ] compare LOS by site
-
-## Todo.next
 
 
 ## Notes
 
 ### Figures
 
-- site_sofa_seq.png: shows SOFA score sorted by recruitment date
+# Archive
+
+## todo.archive
+
+- ventilation parameters @done(2014-11-29)
+- cumulative fluid balance in 1st 4d @done(2014-11-29)
+- lactate measuremenents by centre @done(2014-11-29)
+- RRT use @done(2014-11-29)
+
