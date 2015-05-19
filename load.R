@@ -19,6 +19,8 @@
 # ===
 # 2014-11-29
 # - file created
+# 2015-04-08
+# - switch to using updated file with 8 ICU's
 
 rm(list=ls(all=TRUE))
 
@@ -38,9 +40,11 @@ require(XLConnect)
 #  = Data =
 #  ========
 
-# Assuming ..data/_data_in/6 centres-15-09-14.xls is the most current file
-warning("Check:\nAssuming ..data/_data_in/6 centres-15-09-14.xls is the most current file")
-raw_csv_file = '../data/working_140915.csv'
+# CHANGED: 2015-04-08 - [ ] switching files
+# Original file     ..data/_data_in/6 centres-15-09-14.xls
+# Current file      ..data/_data_in/8 ICUs 20150315.xls
+warning("Check:\nAssuming ..data/_data_in/8 ICUs 20150315 - corrected.xls is the most current file")
+raw_csv_file = '../data/_data_in/8 ICUs 20150315 - corrected.csv'
 rdf <- read.table(raw_csv_file,
     sep = ",", quote="\"", header=TRUE,
     strip.white=TRUE, stringsAsFactors=FALSE )

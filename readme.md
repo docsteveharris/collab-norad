@@ -8,20 +8,45 @@ Steve Harris doc@steveharris.me
 
 - please be systematic about naming files and variables
 
+# Inbox.todo
+
+
+- endpoint: time to end of vasopressors (as per Merv 2015-02-07) @done(2015-02-07)
+    + wrote to say not possible because we don't have time to event
+    + median duration to pressors stopping 
+        * stopping being defined as 0.15
+        * stopping being defined as 0.30
+    + at the 24 hour time point
+
+- breakdown by hospital where there is significant amount of missingness
+	- hospital mortality
+	- sofa score at 24 hours
+- Nail down the primary question
+	- high control group mortality
+	- heart rate important early
+	- sedation important relationship with hospital mortality
+		- high sedation and high noradrenaline use
+	- sepsis definitions and lactate plus or minus hypotension
+- Data questions following on from the new 8 ICU sheet
+	- missing n_days_fb
+	- error (y) in pmh_bblocker (corrected by hand)
+
+
 # Issues
 
 ## From phone call 2014-11-30
 
 TODO: 2014-11-30 - [ ] @steve check pattern of intubation by site (proportions)
+	- how? there is no field? could use PEEP field or sedation field
 TODO: 2014-11-30 - [ ] @steve report sample size by site
 TODO: 2014-11-30 - [ ] @steve noradrenaline and heart rate;
-TODO: 2014-11-30 - [ ] @steve heart rate and noradrenaline (cut at 95), on mortality (interacton)
+TODO: 2014-11-30 - [ ] @steve heart rate and noradrenaline (cut at 95), on mortality (interaction)
 TODO: 2014-11-30 - [ ] @steve lactate and mortality (compare at 1hr and 24hr); running smooth (no model initally ?inflexion)
-TODO: 2014-11-30 - [ ] @merv chase Paris
-TODO: 2014-11-30 - [ ] @merv check re beta-block in Belfast
-TODO: 2014-11-30 - [ ] @merv check re physiology in Rome
-TODO: 2014-11-30 - [ ] @roberta-sara add in Paris data
-TODO: 2014-11-30 - [ ] @roberta-sara add in Tommy's data
+TODO: 2014-11-30 - [ ] @merv chase Paris @done(2015-04-08)
+TODO: 2014-11-30 - [ ] @merv check re beta-block in Belfast @done(2015-04-08)
+TODO: 2014-11-30 - [ ] @merv check re physiology in Rome @done(2015-04-08)
+TODO: 2014-11-30 - [ ] @roberta-sara add in Paris data @done(2015-04-08)
+TODO: 2014-11-30 - [ ] @roberta-sara add in Tommy's data @done(2015-04-08)
 
 ## General
 
@@ -46,6 +71,33 @@ TODO: 2014-10-13 - [ ] @roberta-sara check for ne_start fr 2008?
 ## Notes
 
 ### Figures
+
+# Log
+
+## Email from Roberta 15 March 2015
+
+> Dear Mervyn,
+> Greetings from Ancona!!
+> The datasheet has still got some question marks, but we eventually decides to stop asking for answers,   looking forward to have good news from Steve :-)
+
+> > Paris misses important info as BP and Bugs, but we think other data are interesting  ( they reach high levels of noradrenaline, not using any other vasoactive drugs at all.
+> Disappointing:  why did they include patients without noradrenaline if we asked for patients on NE?!!);
+
+> > St Thomas sent us just 40 people but they are more or less complete;
+
+> > Leeuwarden didn't answer about FB ( could you ask dr Boerma please?
+> They are our outlier we have to know why ;-)
+
+> > Half of the patients Rome sent us are from 2008 - ( on the contrary we asked for patient admitted during the previous two years ...so 2011-2012-2013) . Is it a problem? Guidelines were similar but not the same
+
+> I partecipated the meetings Dr Girardis organized to plan for the new italian multicentre trial about b blockade in septic shock - still far from starting - and dr Morelli spoke about the retrospective study we are "finishing", asking for good advices.
+> They will include patients admitted in ITU for septic shock or developing it during the stay, they will probably exclude people with less than 0.1 mcg/kg/min of NE thinking that low rate NE is just related to sedation, but they are discussing about using a sedation score as we are.
+> B-blockers will be used for patients that stay tachycardic after fluid resus but.... interestingly they are thinking that the threshold of 95 BPM is too low and 100 is probably better.
+> Something useful also for us but we think we have to Skype together with Steve and you, Mervyn. 
+> Is that alright for you?
+
+> Bw,
+> R+S+new baby+doggy
 
 # Archive
 

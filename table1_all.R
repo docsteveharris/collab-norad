@@ -41,10 +41,12 @@
 # Install latest version
 # install.packages('data.table', type='source') (use source version to get latest)
 # update.packages(type='source')
+library(data.table) # NB setnames and setorder only exist in >v1.9
+library(reshape2)
+library(XLConnect)
 
 rm(list=ls(all=TRUE))
-source(file="load.R")
-load(file='../data/cleaned.R')
+load(file='../data/cleaned.RData')
 
 wdt.original <- wdt
 wdt$sample_N <- 1
@@ -59,7 +61,8 @@ vars.strata <-  NA
 # Define the vars
 
 vars <- c(
-	'male', 'age', 'weight', 'height', 'bmi',
+	'male', 'age', 'weight', 'height',
+	# 'bmi',
 	'sepsis.site', 'pmh.betablock', 
 	'sofa.0', 'sofa.1', 'sofa.24',
 	'lac.1', 'lac.24',
@@ -70,7 +73,8 @@ vars <- c(
 	'rrt.1', 'rrt.24',
 	'ne.1', 'ne.24',
 	'rx.betablock', 'rx.roids',
-	'fin.24', 'fb.24', 'fb.mean',
+	'fin.24', 'fb.24',
+	# 'fb.mean',
 	'los.itu',
 	'mort.itu', 'mort.hosp'
 	)

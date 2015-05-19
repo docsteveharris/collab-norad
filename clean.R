@@ -28,6 +28,8 @@
 # 	- fb in 1st 24h
 # 	- cumulative fluids in
 # 	- cumulative fb
+# 2015-04-08
+# - switch to using updated file with 8 ICU's
 
 #  ====================================================
 #  = Load raw data and all dependencies and functions =
@@ -39,7 +41,7 @@ tail(data.frame(rdf$id, rdf$age))
 nrow(rdf)
 rdf <- rdf[rdf$id != "",]
 nrow(rdf)
-assert_that(nrow(rdf) == 596)
+assert_that(nrow(rdf) == 736)
 rdt <- data.table(rdf)
 
 # Sanity checks
@@ -77,7 +79,7 @@ str(wdt)
 describe(wdt$hosp)
 assert_that(
 	nrow(wdt)
-	- sum(wdt$hosp %in% c('an', 'rome', 'blf', 'lee', 'rlh', 'uclh'))
+	- sum(wdt$hosp %in% c('an', 'rome', 'blf', 'lee', 'rlh', 'uclh', 'sth', 'paris'))
 	== 0
 	)
 
@@ -111,9 +113,10 @@ describe(rdf$weight)
 wdt <- wdt[rdt[,.(weight),keyby=id]]
 stem(wdt$weight)
 
-describe(rdf$bmi)
-wdt <- wdt[rdt[,.(bmi),keyby=id]]
-stem(wdt$bmi)
+# NOTE: 2015-04-08 - [ ] missing from 8 ICU data?
+# describe(rdf$bmi)
+# wdt <- wdt[rdt[,.(bmi),keyby=id]]
+# stem(wdt$bmi)
 
 # Sepsis
 describe(rdf$source_infection)
@@ -163,15 +166,16 @@ setnames(wdt,'fb_cumul','fb.cum')
 describe(wdt$fb.cum)
 stem(wdt$fb.cum)
 
+# NOTE: 2015-04-08 - [ ] missing from 8 ICU data
 # Total cumulative fluid balance
 # 1--4 days monitored
-describe(rdt$n_days_fb)
-wdt <- wdt[rdt[,.(n_days_fb),keyby=id]]
-setnames(wdt,'n_days_fb','fb.days')
-describe(wdt$fb.days)
+# describe(rdt$n_days_fb)
+# wdt <- wdt[rdt[,.(n_days_fb),keyby=id]]
+# setnames(wdt,'n_days_fb','fb.days')
+# describe(wdt$fb.days)
 
-wdt[,fb.mean := fb.cum / fb.days]
-stem(wdt$fb.mean)
+# wdt[,fb.mean := fb.cum / fb.days]
+# stem(wdt$fb.mean)
 
 # Severity
 describe(rdf$adm_sofa)

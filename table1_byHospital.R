@@ -8,6 +8,7 @@
 
 # Todo
 # ====
+# TODO: 2015-05-19 - [ ] missing by site rather than overall
 
 # Notes
 #
@@ -30,10 +31,16 @@
 # 2014-10-13
 # - duplicated from paper-spotearly/labbook_table1.R
 # - duplicated from table1_all.R
+# 2015-05-19
+# - dropped fluid balance mean since fb_days not available in 8 ICU sheet
+# - dropped BMI for same reason
 
+# Load libraries
+library(data.table) # NB setnames and setorder only exist in >v1.9
+library(reshape2)
+library(XLConnect)
 
 rm(list=ls(all=TRUE))
-source(file="load.R")
 load(file='../data/cleaned.Rdata')
 
 wdt.original <- wdt
@@ -49,8 +56,9 @@ vars.strata <-  'hosp'
 # Define the vars
 
 vars <- c(
-	'male', 'age', 'weight', 'height', 'bmi',
-	'sepsis.site', 'pmh.betablock', 
+	'male', 'age', 'weight', 'height',
+	# 'bmi',
+	'sepsis.site', 'pmh.betablock',
 	'sofa.0', 'sofa.1', 'sofa.24',
 	'lac.1', 'lac.24',
 	'hr.1', 'hr.24',
@@ -60,7 +68,8 @@ vars <- c(
 	'rrt.1', 'rrt.24',
 	'ne.1', 'ne.24',
 	'rx.betablock', 'rx.roids',
-	'fin.24', 'fb.24', 'fb.mean',
+	'fin.24', 'fb.24',
+	# 'fb.mean',
 	'los.itu',
 	'mort.itu', 'mort.hosp'
 	)
@@ -108,7 +117,7 @@ t1.contvars <- function(var, strata, this_dt) {
 				N 		 = .N,
 				# NOTE: 2014-10-11 - add these later else strata means you get missing by strata not var
 				miss.n	 = sapply(.SD, function(x) sum(is.na(x))),
-				# miss.p	 = sapply(.SD, function(x) round(sum(is.na(x)) / length(x) * 100, 1)),
+				miss.p	 = sapply(.SD, function(x) round(sum(is.na(x)) / length(x) * 100, 1)),
 				mean	 = sapply(.SD, function(x) mean(x, na.rm=TRUE)),
 			 	sd		 = sapply(.SD, function(x) sd(x, na.rm=TRUE)),
 			 	min		 = sapply(.SD, function(x) min(x, na.rm=TRUE)),
@@ -130,8 +139,8 @@ t1.contvars <- function(var, strata, this_dt) {
 t1.contvars.results <- t1.contvars(vars.cont, vars.strata, wdt)
 
 # Now total the missing by variable
-t1.contvars.results[,miss.n := sum(miss.n), by=varname]
-t1.contvars.results[, miss.p := lapply(.SD, function(x) round(max(miss.n)/sum(N) *100, 1)), by=varname ]
+t1.contvars.results[,miss.var.n := sum(miss.n), by=varname]
+t1.contvars.results[, miss.var.p := lapply(.SD, function(x) round(max(miss.var.n)/sum(N) *100, 1)), by=varname ]
 
 # Now convert this list of data.tables into a single data.table
 t1.contvars.results$vartype <- 'continuous'
@@ -183,7 +192,10 @@ t1.contvars.results <- as.data.table(t1.contvars.results)
 cols_shared <- c(c('varname', 'vartype', 'N', 'miss.n', 'miss.p'), vars.strata)
 t1.results <- merge(t1.contvars.results, t1.catvars.results,
 	by=cols_shared, all=TRUE)
-setcolorder(t1.results, c(vars.strata, 'varname', 'level', 'N', 'pct', 'mean', 'sd', 'min', 'q05', 'q25', 'q50', 'q75', 'q95', 'max', 'miss.n', 'miss.p', 'vartype'))
+setcolorder(t1.results, c(vars.strata,
+	'varname', 'level', 'N', 'pct', 'mean', 'sd',
+	'min', 'q05', 'q25', 'q50', 'q75', 'q95', 'max',
+	'miss.n', 'miss.p', 'miss.var.n', 'miss.var.p', 'vartype'))
 
 # Provide the table order
 t1.results[,table.order := NULL]
@@ -196,8 +208,10 @@ t1.results[, dist := ifelse(varname %in% vars.norm, 'normal', '')]
 cols_all_order <- c(vars.strata, c('varname', 'miss.p', 'level', 'N', 'pct', 'mean', 'sd'))
 # t1.results[, .SD, .SDcols=cols_all_order]
 
+# CHANGED: 2015-05-19 - [ ] keep the NA fields since this give you missing within strata
 # Drop the NA levels since these are captured in the miss.n and miss.p fields
-t1.results <- t1.results[!(vartype=='categorical' & is.na(level))]
+# t1.results <- t1.results[!(vartype=='categorical' & is.na(level))]
+
 # Convert level from factor to numeric to enable sorting
 # NOTE: 2014-11-13 - [ ] where TRUE and FALSE used as factors this step fails
 # so now create a new variable level.order
@@ -299,4 +313,5 @@ createSheet(wb, name = sheet2)
 writeWorksheet(wb, t1.wide.raw, sheet2)
 
 saveWorkbook(wb)
+warnings()
 
