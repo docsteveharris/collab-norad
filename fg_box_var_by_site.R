@@ -17,6 +17,8 @@
 # - file created
 # 2014-11-29
 # - cloned from patient sequence version
+# 2015-11-24
+# - updated for current data 8 ICUs 20150826 - corrected.txt
 
 rm(list=ls(all=TRUE))
 source(file="load.R")
@@ -29,13 +31,17 @@ str(wdt)
 
 # Reshape to long for norad and map
 # NOTE: 2014-11-29 - [ ] to make melt work with fb.mean you need to append .1
-setnames(wdt, 'fb.mean', 'fbmean.1')
+# setnames(wdt, 'fb.mean', 'fbmean.1')
 wdt.melt <- melt(wdt[,list(hosp, id.hosp,
 	ne.1, ne.24, map.1, map.24, hr.1, hr.24,
 	sedation.1, sedation.24,
 	lac.1, lac.24,
 	pf.1, pf.24,
-	sofa.1, sofa.24, fin.24, fb.24, fbmean.1)], id.vars=c('hosp', 'id.hosp'))
+	sofa.1, sofa.24,
+	fin.24, fb.24
+	# CHANGED: 2015-11-24 - [ ] dropped b/c don't have fb days
+	# fbmean.1
+	)], id.vars=c('hosp', 'id.hosp'))
 
 # TODO: 2014-11-30 - [ ] need to convert melt table back to data.table
 
@@ -169,20 +175,20 @@ ggsave(
 	)
 
 # FB mean (cumulative divided by number days)
-describe(wdt2$fb)
-g_fb.mean <- ggplot(wdt2, aes(x=hosp, y=fbmean))
-g_fb.mean +
-	geom_boxplot(notch=TRUE) +
-	coord_cartesian(ylim = c(0, 5000)) +
-	labs(list(
-		title = 'Mean fluid balance',
-		x = 'Patient ID',
-		y = 'Fluid (mls)'))
-ggsave(
-	filename = '../outputs/figs/site_fbmean_box.png',
-	width=4,
-	height=6
-	)
+# describe(wdt2$fb)
+# g_fb.mean <- ggplot(wdt2, aes(x=hosp, y=fbmean))
+# g_fb.mean +
+# 	geom_boxplot(notch=TRUE) +
+# 	coord_cartesian(ylim = c(0, 5000)) +
+# 	labs(list(
+# 		title = 'Mean fluid balance',
+# 		x = 'Patient ID',
+# 		y = 'Fluid (mls)'))
+# ggsave(
+# 	filename = '../outputs/figs/site_fbmean_box.png',
+# 	width=4,
+# 	height=6
+# 	)
 
 
 # Lactate

@@ -35,13 +35,20 @@ Steve Harris doc@steveharris.me
 
 # Analysis and data management approach
 
-Ordered list of steps
+Ordered list of steps (as per an imaginary make file)
+
+Data input and cleaning
 
 - manually convert dates in excel to dd-mm-ccyy
 - save datasheet as tab separated since there are , and ; in the text
 - load.R - just load appropriate file
 - clean.R (which calls load.R); produces cleaned.Rdata
-- 
+
+Data inspection
+
+- table1_all.R
+- table1_byHospital.R
+
 
 # Issues
 
