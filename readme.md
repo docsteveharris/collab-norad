@@ -12,8 +12,8 @@ Steve Harris doc@steveharris.me
 
 
 - endpoint: time to end of vasopressors (as per Merv 2015-02-07) @done(2015-02-07)
-    + wrote to say not possible because we don't have time to event
-    + median duration to pressors stopping 
+	+ wrote to say not possible because we don't have time to event
+	  + median duration to pressors stopping 
         * stopping being defined as 0.15
         * stopping being defined as 0.30
     + at the 24 hour time point
@@ -28,11 +28,26 @@ Steve Harris doc@steveharris.me
 		- high sedation and high noradrenaline use
 	- sepsis definitions and lactate plus or minus hypotension
 - Data questions following on from the new 8 ICU sheet
-	- missing n_days_fb
+    - missing BMI data (prob just need to recalc)
+	- missing n_days_fb hence can't calculate cumulative fluid balanceurr
 	- error (y) in pmh_bblocker (corrected by hand)
+    - missing mortality outcomes for 11% ?which hospitals
 
+# Analysis and data management approach
+
+Ordered list of steps
+
+- manually convert dates in excel to dd-mm-ccyy
+- save datasheet as tab separated since there are , and ; in the text
+- load.R - just load appropriate file
+- clean.R (which calls load.R); produces cleaned.Rdata
+- 
 
 # Issues
+
+## 2015-11-24
+
+- heights from Royal London are in metres not cm
 
 ## From phone call 2014-11-30
 

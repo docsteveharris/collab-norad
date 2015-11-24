@@ -67,7 +67,7 @@ setkey(wdt, id.original)
 describe(rdf$icu_adm) # can't use missing 100 vals
 describe(rdf$ne_start)
 wdt <- wdt[rdt[,.(ne_start),keyby=id]]
-wdt[,ne.start.dt := as.Date(ne_start, '%d/%m/%y')]
+wdt[,ne.start.dt := as.Date(ne_start, '%d/%m/%Y')]
 wdt[,ne_start    := NULL]
 
 # TODO: 2014-10-13 - [ ] check for ne_start fr 2008? @roberta-sara
@@ -107,6 +107,8 @@ stem(wdt$age)
 
 describe(rdf$height)
 wdt <- wdt[rdt[,.(height),keyby=id]]
+# NOTE: 2015-11-24 - [ ] manually correct heights for RLH 
+wdt[, height := ifelse(hosp=="rlh",height*100,height)]
 stem(wdt$height)
 
 describe(rdf$weight)
@@ -130,8 +132,11 @@ describe(rdf$bug2)
 # Medications and interventions
 describe(rdt$b_block_history)
 wdt <- wdt[rdt[,.(b_block_history),keyby=id]]
+describe(wdt$b_block_history)
+wdt[, b_block_history := as.numeric(ifelse(b_block_history=="yes",1,b_block_history))]
 wdt[,pmh.betablock := factor(b_block_history, labels=c(FALSE, TRUE))]
 wdt[,b_block_history  := NULL]
+describe(wdt$pmh.betablock)
 str(wdt)
 
 wdt <- wdt[rdt[,.(b_block_1to24),keyby=id]]
@@ -243,7 +248,7 @@ lapply(wdt[,.(rrt.1, rrt.24)], check.cat)
 wdt <- wdt[rdt[,.(itu_mortality),keyby=id]]
 setnames(wdt,'itu_mortality','mort.itu')
 
-# NOTE: 2014-10-09 - missing hospital mortality for 63 patients
+# NOTE: 2015-11-24 - missing hospital mortality for 2 patients (lee)
 wdt <- wdt[rdt[,.(hosp_mortality),keyby=id]]
 setnames(wdt,'hosp_mortality','mort.hosp')
 wdt[,list(.N,mort.hosp.miss = sum(is.na(mort.hosp)) ),hosp]

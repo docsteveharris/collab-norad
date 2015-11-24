@@ -21,6 +21,9 @@
 # - file created
 # 2015-04-08
 # - switch to using updated file with 8 ICU's
+# 2015-11-24
+# - switching to 8 ICUs 20150826.xls
+# - using tab delimiter rather than csv b/c of problems with text
 
 rm(list=ls(all=TRUE))
 
@@ -43,10 +46,11 @@ require(XLConnect)
 # CHANGED: 2015-04-08 - [ ] switching files
 # Original file     ..data/_data_in/6 centres-15-09-14.xls
 # Current file      ..data/_data_in/8 ICUs 20150315.xls
-warning("Check:\nAssuming ..data/_data_in/8 ICUs 20150315 - corrected.xls is the most current file")
-raw_csv_file = '../data/_data_in/8 ICUs 20150315 - corrected.csv'
-rdf <- read.table(raw_csv_file,
-    sep = ",", quote="\"", header=TRUE,
+warning("Check:\nAssuming ..data/_data_in/8 ICUs 20150326 - corrected.xls is the most current file")
+# raw_csv_file = '../data/_data_in/8 ICUs 20150315 - corrected.txt'
+raw_tab_file = '../data/_data_in/8 ICUs 20150826 - corrected.txt'
+rdf <- read.table(raw_tab_file,
+    sep = "\t", quote="\"", header=TRUE,
     strip.white=TRUE, stringsAsFactors=FALSE )
 str(rdf)
 
