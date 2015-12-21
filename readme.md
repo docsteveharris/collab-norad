@@ -8,13 +8,20 @@ Steve Harris doc@steveharris.me
 
 - please be systematic about naming files and variables
 
-# Inbox.todo
+# Inbox.todo:
+
+
+# Next.todo:
+	- create makefile
+	- 
+
+
 
 
 - endpoint: time to end of vasopressors (as per Merv 2015-02-07) @done(2015-02-07)
 	+ wrote to say not possible because we don't have time to event
-	  + median duration to pressors stopping 
-        * stopping being defined as 0.15
+		+ median duration to pressors stopping 
+	    * stopping being defined as 0.15
         * stopping being defined as 0.30
     + at the 24 hour time point
 

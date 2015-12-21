@@ -34,7 +34,7 @@
 #  ====================================================
 #  = Load raw data and all dependencies and functions =
 #  ====================================================
-source(file="load.R")
+source(file="prep/load.R")
 
 # Drop if missing id (there's a blank row at the end of the sheet)
 tail(data.frame(rdf$id, rdf$age))
