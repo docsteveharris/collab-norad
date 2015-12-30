@@ -1,35 +1,16 @@
-# Team
+# inbox.todo:
 
-Roberta Domizi RobertaDomizi@gmail.com
-Sara Calcinaro S.Calcinaro@gmail.com
-Steve Harris doc@steveharris.me
+	- check that the noradrenaline dose differences are not due to how methods of weight adjustment
+		we don't have the raw doses in the spreadsheet just the weight adjusted doses so if weight adjustment was done using IBW vs actual BW in Italy we would not know @discuss
 
-# Guidance notes
-
-- please be systematic about naming files and variables
-
-# Inbox.todo:
-
-
-# Next.todo:
-	- create makefile
-	- 
-
-
-
-
-- endpoint: time to end of vasopressors (as per Merv 2015-02-07) @done(2015-02-07)
-	+ wrote to say not possible because we don't have time to event
-		+ median duration to pressors stopping 
-	    * stopping being defined as 0.15
-        * stopping being defined as 0.30
-    + at the 24 hour time point
-
-- breakdown by hospital where there is significant amount of missingness
-	- hospital mortality
-	- sofa score at 24 hours
-- Nail down the primary question
-	- high control group mortality
+# next.todo:
+	
+	- exp
+	
+	
+	
+# later.todo:
+	
 	- heart rate important early
 	- sedation important relationship with hospital mortality
 		- high sedation and high noradrenaline use
@@ -39,22 +20,6 @@ Steve Harris doc@steveharris.me
 	- missing n_days_fb hence can't calculate cumulative fluid balanceurr
 	- error (y) in pmh_bblocker (corrected by hand)
     - missing mortality outcomes for 11% ?which hospitals
-
-# Analysis and data management approach
-
-Ordered list of steps (as per an imaginary make file)
-
-Data input and cleaning
-
-- manually convert dates in excel to dd-mm-ccyy
-- save datasheet as tab separated since there are , and ; in the text
-- load.R - just load appropriate file
-- clean.R (which calls load.R); produces cleaned.Rdata
-
-Data inspection
-
-- table1_all.R
-- table1_byHospital.R
 
 
 # Issues

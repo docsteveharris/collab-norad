@@ -50,7 +50,8 @@ warning("Check:\nAssuming ..data/_data_in/8 ICUs 20150326 - corrected.xls is the
 # raw_csv_file = '../data/_data_in/8 ICUs 20150315 - corrected.txt'
 raw_tab_file = '../data/_data_in/8 ICUs 20150826 - corrected.txt'
 rdf <- read.table(raw_tab_file,
-    sep = "\t", quote="\"", header=TRUE,
+    sep = "\t", quote="\"",
+	header=TRUE,
     strip.white=TRUE, stringsAsFactors=FALSE )
 str(rdf)
 

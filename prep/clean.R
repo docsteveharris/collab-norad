@@ -43,6 +43,7 @@ rdf <- rdf[rdf$id != "",]
 nrow(rdf)
 assert_that(nrow(rdf) == 736)
 rdt <- data.table(rdf)
+rdt
 
 # Sanity checks
 df.names <- data.frame(names(rdf))
@@ -82,6 +83,13 @@ assert_that(
 	- sum(wdt$hosp %in% c('an', 'rome', 'blf', 'lee', 'rlh', 'uclh', 'sth', 'paris'))
 	== 0
 	)
+
+# Name the hospitals
+table(wdt$hosp)
+wdt[, hosp := factor(hosp,
+	levels=c("an", "blf", "lee", "paris", "rlh", "rome", "sth", "uclh"),
+	labels=c("Ancona", "Belfast", "Leuven", "Paris", "Royal London", "Rome", "GSTT", "UCLH"))]
+
 
 # Now make your own ordered unique ID (overall)
 setorder(wdt, hosp, ne.start.dt)
@@ -247,10 +255,12 @@ lapply(wdt[,.(rrt.1, rrt.24)], check.cat)
 # Outcomes
 wdt <- wdt[rdt[,.(itu_mortality),keyby=id]]
 setnames(wdt,'itu_mortality','mort.itu')
+# wdt[, mort.itu := factor(mort.itu, levels=c(0,1), labels=c("Alive", "Dead"))]
 
 # NOTE: 2015-11-24 - missing hospital mortality for 2 patients (lee)
 wdt <- wdt[rdt[,.(hosp_mortality),keyby=id]]
 setnames(wdt,'hosp_mortality','mort.hosp')
+# wdt[, mort.hosp := factor(mort.hosp, levels=c(0,1), labels=c("Alive", "Dead"))]
 wdt[,list(.N,mort.hosp.miss = sum(is.na(mort.hosp)) ),hosp]
 
 # Length of stay
@@ -262,6 +272,14 @@ wdt[,los.itu := ifelse(los.itu=="<1", 0, as.numeric(los.itu))]
 describe(wdt$los.itu)
 
 str(wdt)
+
+# Generate a hospital level variable sorted by mortality
+m <- wdt[, .(s = mean(mort.itu, na.rm=TRUE)), by=hosp]
+setorder(m, s)
+m[, mort.itu.order := .I ]
+m[, mort.itu.order := factor(mort.itu.order, labels=m$hosp, ordered=TRUE)]
+setkey(wdt,hosp)
+wdt <- wdt[m[,.(hosp,mort.itu.order)]]
 
 # Save
 save(wdt, file='../data/cleaned.Rdata')
