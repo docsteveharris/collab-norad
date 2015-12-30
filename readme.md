@@ -1,0 +1,1 @@
+See readme-paper-norad.md for the detailed current notes for this work.
