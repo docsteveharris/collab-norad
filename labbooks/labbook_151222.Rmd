@@ -1,0 +1,122 @@
+---
+title: "labbook_151222"
+author: "Steve Harris"
+date: "22 Dec 2015"
+output: "html_document"
+---
+Notes on analysis of the European septic shock data
+
+```{r include=FALSE}
+
+rm(list=ls(all=TRUE))
+
+# Set up and load data
+
+require(Hmisc)
+require(assertthat)
+require(gmodels)
+require(descr)
+require(data.table)
+require(XLConnect)
+require(ggplot2)
+require(arm) 			# for display
+
+# Pander options
+require(pander)
+panderOptions('table.split.table', Inf)
+panderOptions('table.alignment.default', 'right')
+panderOptions('table.style', 'rmarkdown')
+
+load(file='../data/cleaned.Rdata')
+
+wdt.original <- wdt
+wdt$sample_N <- 1
+wdt$all <- 1
+wdt[, all := factor(all, label=("All patients"))]
+str(wdt)
+assert_that(nrow(wdt)==736)
+names(wdt)
+attach(wdt)
+
+```
+
+## Tasks
+
+- [X] import and clean data
+- [X] prepare patient level version of Table 1
+
+## Notes
+
+
+### Quick inspect of patient level data
+
+We have `r nrow(wdt)` cases available to analyse.
+
+```{r, inspect_hosp, echo=FALSE, result=TRUE}
+pander(table(hosp))
+```
+
+```{r, inspect_table1, echo=FALSE, result=TRUE}
+load("../outputs/tables/table1_all.RData")
+t1.wide.summ[,c(1:2,4:5),with=FALSE]
+```
+
+Primary outcome is mortality, and we have both ITU and hospital mortality with minimal missing data.
+
+
+```{r, 'descr mortality', echo=FALSE, result=TRUE}
+print("ITU mortality")
+t <- wdt[, .(.N,"%"=round(100*.N/nrow(wdt))), by=.("ITU mortality"=mort.itu)]
+pander(t)
+
+print("Hospital mortality")
+t <- wdt[, .(.N,"%"=round(100*.N/nrow(wdt))), by=.("Hospital mortality"=mort.hosp)]
+pander(t)
+```
+
+So how much of these differences can be ascribed to baseline characteristics? In other words, there are two ways of looking at this: either the patients are different, and if we had similar patients then we would see similar outcomes; or, the treatment is different and this is the cause for differences in outcome.
+
+```{r, 'plot_mort', echo=TRUE}
+mosaicplot(hosp ~ mort.itu,
+	color=c("grey80", "grey0"), border=FALSE)
+
+# Now let's facet by site
+wdt$hosp.ne.24 <- NULL
+wdt[, hosp.ne.24 := quantile(ne.24, 0.5, na.rm=TRUE), by=hosp]
+wdt[,.(min(hosp.ne.24)), by=hosp]
+wdt[, hosp.ne.24 := factor(hosp.ne.24, labels=c(LETTERS[1:8]))]
+str(wdt$hosp.ne.24)
+with(wdt, mosaicplot(hosp.ne.24 ~ mort.itu,
+	color=c("grey80", "grey0"), border=FALSE))
+
+describe(ne.1)
+# Scale 10* for interpretability
+wdt[, ne.1s := ne.1*10]
+wdt[, ne.24s := ne.24*10]
+
+m <- glm(mort.itu ~ ne.24s, data=wdt, family=binomial(link="logit"))
+display(m)
+wdt[, yhat := invlogit(predict(m))]
+mean(as.numeric(wdt$mort.itu)-1, na.rm=TRUE)
+ggplot(data=wdt, aes(y=yhat,x=ne.24s)) +
+	geom_point() +
+	geom_smooth() +
+	coord_cartesian(y=c(0,1), x=c(0,10))
+
+```
+
+
+
+```{r include=FALSE}
+detach(wdt)
+```
+
+
+
+
+
+
+
+
+
+

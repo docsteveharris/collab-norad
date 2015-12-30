@@ -52,6 +52,7 @@ wdt.original <- wdt
 wdt$sample_N <- 1
 
 # Define file name
+table1.data <- '../outputs/tables/table1_all.RData'
 table1.file <- '../outputs/tables/table1_all.xlsx'
 
 # Define strata
@@ -293,6 +294,9 @@ t1.wide.summ <- t1.wide.summ[t1.results.byvarname]
 setorder(t1.wide.summ, +table.order, -level.order)
 
 t1.wide.summ
+
+# write table
+save(t1.wide.summ, t1.wide.raw, file=table1.data)
 
 #  =======================
 #  = Now export to excel =

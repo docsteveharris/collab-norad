@@ -1,0 +1,189 @@
+---
+title: "labbook_151222"
+author: "Steve Harris"
+date: "30 Dec 2015"
+output: "html_document"
+---
+Approach to the analysi fo the European septic shock data
+
+```{r include=FALSE}
+
+rm(list=ls(all=TRUE))
+
+# Set up and load data
+
+require(Hmisc)
+require(assertthat)
+require(gmodels)
+require(descr)
+require(data.table)
+require(XLConnect)
+require(ggplot2)
+require(arm) 			# for display
+
+# Pander options
+require(pander)
+panderOptions('table.split.table', Inf)
+panderOptions('table.alignment.default', 'right')
+panderOptions('table.style', 'rmarkdown')
+
+load(file='../data/cleaned.Rdata')
+load(file='../data/clean_long.Rdata')
+
+wdt.original <- wdt
+wdt$sample_N <- 1
+wdt$all <- 1
+wdt[, all := factor(all, label=("All patients"))]
+str(wdt)
+assert_that(nrow(wdt)==736)
+names(wdt)
+
+# Mosaic plot with ggplot function
+ggMMplot <- function(var1, var2){
+  require(ggplot2)
+  levVar1 <- length(levels(var1))
+  levVar2 <- length(levels(var2))
+
+  jointTable <- prop.table(table(var1, var2))
+  plotData <- as.data.frame(jointTable)
+  plotData$marginVar1 <- prop.table(table(var1))
+  plotData$var2Height <- plotData$Freq / plotData$marginVar1
+  plotData$var1Center <- c(0, cumsum(plotData$marginVar1)[1:levVar1 -1]) +
+    plotData$marginVar1 / 2
+
+  ggplot(plotData, aes(var1Center, var2Height)) +
+    geom_bar(stat = "identity", aes(width = marginVar1, fill = var2), col = "White") +
+    scale_fill_brewer(type="seq", palette="YlOrRd") +
+    geom_text(aes(label = as.character(var1), x = var1Center, y = 1.05, size=0.5)) +
+    theme_minimal()
+}
+
+
+```
+
+We have `r nrow(wdt)` cases from `r length(unique(wdt$hosp))` sites.
+
+```{r, echo=FALSE, result=TRUE}
+wdt[,.(n=.N,pct=round(.N/nrow(wdt)*100)), by=hosp]
+```
+
+We set relatively strict and clear inclusion criteria so the cases should be homogeneous with similar characteristics _across_ sites. In particular, mortality, physiology (heart rate and blood pressure), and use of noradrenaline should not differ much.
+
+But this is not true for mortality at either unit or hospital level.
+
+### Mortality
+
+```{r, 'plot_mort', echo=FALSE, result=TRUE}
+mosaicplot(hosp ~ factor(mort.itu, levels=c(0,1), labels=c("Alive", "Dead")),
+	color=c("grey80", "grey0"), data=wdt, border=FALSE)
+title(main="", ylab="ITU mortality (%)")
+
+
+t <- with(wdt, table(mort.itu.order, factor(mort.itu, levels=c(0,1), labels=c("Alive", "Dead"))))
+mosaicplot(t, color=c("grey80", "grey0"), border=FALSE)
+title(main="", xlab="Hospital", ylab="ITU mortality (%)")
+```
+
+So if mortality differs, do we see a corresponding pattern in the physiology? Let's examine heart rate for a starter.
+
+### Heart rate
+
+```{r, echo=FALSE, result=TRUE}
+print("Heart rate at hour 1")
+summary(wdt$hr.1)
+print("Heart rate at hour 24")
+summary(wdt$hr.24)
+
+require(ggplot2)
+str(wdt.long)
+p <- ggplot(data=wdt.long, aes(y=hr, x=mort.itu.order))
+p + geom_boxplot(notch=TRUE) +
+	facet_grid(.~time) +
+	coord_cartesian(ylim=c(40,160))
+```
+
+So Leuven has high mean HR and Anconca a low which gives the impression that there is an inverse relationship with mortality. But if you remove these two sites then it is less clear.
+
+
+```{r, echo=FALSE, result=TRUE}
+table(wdt$hosp)
+p <- ggplot(data=wdt.long[!(hosp %in% c("Ancona", "Leuven"))],
+		aes(y=hr, x=mort.itu.order))
+p + geom_boxplot(notch=TRUE) +
+	facet_grid(.~time) +
+	coord_cartesian(ylim=c(40,160))
+```
+
+### Mean arterial pressure
+
+Let's check and look at Mean Arterial Pressure.
+
+```{r, echo=FALSE, result=TRUE}
+print("MAP at hour 1")
+summary(wdt$map.1)
+print("MAP at hour 24")
+summary(wdt$map.24)
+
+p <- ggplot(data=wdt.long, aes(y=map, x=mort.itu.order))
+p + geom_boxplot(notch=TRUE) +
+	facet_grid(.~time) +
+	coord_cartesian(ylim=c(40,120))
+```
+
+So this looks more interesting? Higher MAPs are seen in the sites with the highest ITU mortality at both hour 1 and 24.
+
+Is this driven by noradrenaline use?
+
+### Noradrenaline use
+
+```{r, echo=FALSE, result=TRUE}
+print("Noradrenaline at hour 1")
+summary(wdt$ne.1)
+print("Noradrenaline at hour 24")
+summary(wdt$ne.24)
+
+p <- ggplot(data=wdt.long, aes(y=ne, x=mort.itu.order))
+p + geom_boxplot(notch=TRUE) +
+	facet_grid(.~time) +
+	coord_cartesian(ylim=c(0,1))
+```
+
+It looks like MAP and noradrenaline dose are correlated, but Paris seems to be an exception here as the noradrenaline does is high but the mortality is lowish.
+
+Is there any chance that this might be due to different methods for calculating noradrenaline dose (dividing by ideal vs actual body weight?)
+
+Now have a look at fluid balance and sedation practice.
+
+### Fluid balance
+
+```{r, echo=FALSE, result=TRUE}
+print("Fluid balance in 1st 24 h")
+summary(wdt$fb.24)
+
+p <- ggplot(data=wdt.long, aes(y=fb, x=mort.itu.order))
+p + geom_boxplot(notch=TRUE) +
+	facet_grid(.~time) +
+	coord_cartesian(ylim=c(-2000,8000))
+```
+
+### Sedation scores
+
+```{r, echo=FALSE, result=TRUE}
+print("Sedation scores by site")
+with(wdt, table(as.factor(sedation.1), mort.itu.order))
+
+describe(wdt$sedation.1)
+describe(wdt$sedation.24)
+
+wdt[, sed1 := factor(round(sedation.1 / 2),
+	labels=c("0", "+", "++", "+++", "++++"))]
+wdt[, sed24 := factor(round(sedation.24 / 2),
+	labels=c("0", "+", "++", "+++", "++++", "+++++"))]
+
+
+with(wdt[!is.na(sed1)], ggMMplot(mort.itu.order, sed1))
+with(wdt[!is.na(sed24)], ggMMplot(mort.itu.order, sed24))
+
+```
+
+I note that Paris uses a lot of sedation which perhaps explains the higher noradrenaline requirements?
