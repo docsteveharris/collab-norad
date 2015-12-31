@@ -1,0 +1,196 @@
+---
+title: "labbook_151231"
+author: "Steve Harris"
+date: "31 Dec 2015"
+output: "html_document"
+---
+
+Approach to the analysis fo the European septic shock data
+
+```{r include=FALSE}
+# Globally change R markdown options (need to load knitr first)
+require(knitr)
+opts_chunk$set(warning=FALSE, echo=FALSE)
+
+rm(list=ls(all=TRUE))
+
+# Set up and load data
+
+require(Hmisc)
+require(assertthat)
+require(gmodels)
+require(descr)
+require(data.table)
+require(XLConnect)
+require(ggplot2)
+require(arm) 			# for display
+
+# Pander options
+require(pander)
+panderOptions('table.split.table', Inf)
+panderOptions('table.alignment.default', 'right')
+panderOptions('table.style', 'rmarkdown')
+
+load(file='../data/cleaned.Rdata')
+load(file='../data/clean_long.Rdata')
+
+wdt.original <- wdt
+wdt$sample_N <- 1
+wdt$all <- 1
+wdt[, all := factor(all, label=("All patients"))]
+str(wdt)
+assert_that(nrow(wdt)==736)
+names(wdt)
+
+dotplot.severity <- function( v.dead, v.severity,
+		l.dead="Mortality (%)", r.dead=c(0,50),
+		l.severity, r.severity,
+		grp=NULL, # to colour (fill) dots by group indicator
+		bin=1) {
+    # v.severity = severity variable
+    # l.severity = severity label
+    # l.dead = outcome label
+    # r.severity = severity x range
+
+
+	if (is.null(grp)) {
+	    tdt  <- data.table(v.dead,v.severity)
+	    tdt[, grp:=1]
+	}
+	else {
+	    tdt  <- data.table(v.dead,v.severity,grp)
+	}
+
+    v.bin <- bin # for binning continuous var
+    tdt[,bin:=(v.severity%/%v.bin)*v.bin] # rounding function
+    v.alpha.weight <- 1
+
+    tdt.gg <- tdt[,.(n=.N,v.dead=mean(v.dead,na.rm=TRUE),p=.N/nrow(tdt)),by=.(bin,grp)][order(bin)]
+    # Scale p to max 1
+    tdt.gg[,p.scale := ((p/max(p)/v.alpha.weight) + (1 - (1/v.alpha.weight)))]
+    # NOTE: 2014-10-16 - [ ] collapse values above 90th and below 10th centile
+    # this should improve the appearance
+    tdt.gg[,v.dead.limit := ifelse(v.dead>0.75, 75, 100*v.dead)]
+    tdt.gg[,v.dead.pct := 100*v.dead]
+
+	if (is.null(grp)) {
+	    gg <- ggplot(tdt.gg[n>5], aes(x=bin, y=v.dead.pct, size=n), asp=1) 
+	}
+	else {
+	    gg <- ggplot(tdt.gg[n>5], aes(x=bin, y=v.dead.pct, size=n, colour=grp), asp=1) 
+	}
+    return(gg +
+        geom_point(show_guide=TRUE) +
+        labs(x=l.severity, y=l.dead) +
+        guides(size=guide_legend(title="Sample size")) +
+        coord_cartesian(x=r.severity, y=r.dead) +
+	    scale_color_brewer(type="div", palette="RdYlBu") +
+        scale_size_area() + # NB: default in ggplot is scale radius which is misleading
+        theme_minimal()
+    )
+
+}
+
+```
+
+So 736 patients from 8 sites and 4 countries.
+
+Mortality and other physiology and treatment parameters vary.
+There is an odd association where higher MAPs are associated with worse outcomes when we look at typical MAPs by country. I suspect this is the 'ecological fallacy' (aka Simpon's paradox or just confounding by another name) where the 'within country association' is in the opposite direction (i.e. higher MAP =  better outcome).
+
+Let's examine the relationship between blood pressure and outcome in detail - specifically focussing on MAP at 1 hour (which should be unaffected by practice within the ICU)
+
+So this is the overall relationship:
+
+```{r, 'chunk1', echo=FALSE, result=TRUE}
+describe(wdt$mort.itu)
+describe(wdt$map.1)
+with(wdt,
+	dotplot.severity(mort.itu, map.1, 
+		r.dead=c(0,75), l.dead="ITU mortality (%)",
+		l.severity="MAP (at 1 hr)", r.severity=c(40,100), bin=2))
+```
+
+And this is what it looks like if we pick out separately each site.
+
+```{r, 'chunk2', echo=FALSE, result=TRUE}
+with(wdt,
+	dotplot.severity(mort.itu, map.1, grp=mort.itu.order,
+		r.dead=c(0,75), l.dead="ITU mortality (%)",
+		l.severity="MAP (at 1 hr)", r.severity=c(40,100), bin=5))
+```
+
+There is clear confounding between MAP at 1 hour, hospital, and mortality. Patients from Rome and Ancona have the worst outcomes, but there are also the patients with the highest blood pressures.
+
+Now let's plot the _within_ site effect of blood pressure on outcome.
+
+First the 'pooled' data across all hospitals
+
+```{r, echo=FALSE, result=TRUE}
+ggplot(data=wdt, aes(x=map.1, y=100*mort.itu)) +
+	geom_rug(position="jitter", width=0.2, alpha=1/10) +
+	geom_smooth(method="lm", se=FALSE) +
+    scale_color_brewer(type="div", palette="RdYlBu") +
+	theme_minimal()
+
+```
+
+And now the 'within' hospital relationship
+
+```{r, echo=FALSE, result=TRUE}
+ggplot(data=wdt, aes(x=map.1, y=100*mort.itu,
+	group=mort.itu.order, colour=mort.itu.order)) +
+	geom_rug(position="jitter") +
+	geom_smooth(method="lm", se=FALSE) +
+    scale_color_brewer(type="div", palette="RdYlBu") +
+	theme_minimal()
+
+```
+
+
+But we also know that Rome and Ancona use a lot more noradrenaline which suggests that noradrenaline use is *independently* associated with poor outcome even after adjusting for blood pressure.
+
+But this is complicated because noradrenaline _determines_ blood pressure so we can't 'adjust' for it.
+
+e.g.
+
+- Patient 1 has MAP 60 on NAd 0.5
+- Patient 2 has MAP 60 on NAd 0.8
+
+We would instinctively say that Patient 2 is more unwell (more treatment required for the same blood pressure), and so it looks like norad _causes_ harm.
+
+Instead, take two patients with the same noradrenaline doses but different blood pressures
+
+- Patient 1 has MAP 60 on NAd 0.5
+- Patient 2 has MAP 80 on NAd 0.5
+
+Now patient 2 is being 'driven' harder ... but with what effect.
+
+
+Let's plot mortality against blood pressure but _within_ noradrenaline bands. The null hypothesis is that there should be either _no effect_ or lower blood pressure should have worse outcomes.
+
+First we will split up noradrenaline into bands (0.1 to 0.2 mcg/kg/min etc)
+
+```{r result=TRUE}
+require(Hmisc)
+wdt[, ne.1.cut := cut2(ne.1, cuts=c(0,1:10)/10, m=10)]
+CrossTable(wdt$ne.1.cut)
+```
+
+Now let's plot the relationship within each band
+
+```{r result=TRUE}
+ggplot(data=wdt[!is.na(ne.1) & ne.1 < 1], aes(map.1, y=100*mort.itu)) +
+	geom_rug(position="jitter") +
+	geom_smooth(method="lm") + 
+	facet_wrap(~ne.1.cut, nrow=2) +
+	ylim(c(-10,110)) +
+	coord_cartesian(x=c(40,100), y=c(0,100)) +
+	theme_minimal()
+```
+
+Surprising! Worse mortaliy within each 'band' as blood pressure increases.
+
+
+
+
