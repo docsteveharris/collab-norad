@@ -1,8 +1,10 @@
 # Scratch work while writing the paper
 rm(list=ls(all=TRUE))
 source(file="../prep/load.R")
-source(file="../share/functions4rmd.R")
 load(file='../data/cleaned.Rdata')
+source(file="../prep/strobe.R")
+source(file="../prep/prep_vars.R")
+source(file="../share/functions4rmd.R")
 library(dsbc)
 
 #  =====================
@@ -48,3 +50,4 @@ describe(tdt$hosp)
 #  =======================
 #  = Describe population =
 #  =======================
+
