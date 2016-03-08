@@ -19,18 +19,9 @@ source(file="../share/functions4rmd.R")
 We recruited one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were locally diagnosed and treated for infection, required a vasopressor infusion (equivalent to noradrenaline at 0.1 mcg/kg/min or greater) after 24 hours of stabilisation in the critical care unit, and had not received beta-blocker therapy during the same time period.
 
 ```{r strobe, include=FALSE, echo=FALSE}
-wdt[, include := ifelse(age>=18 & ne.1 > 0, 1,0) ]
-wdt[, include := ifelse(is.na(include),0,include)]
-describe(wdt$include)
-wdt <- wdt[include==1]
 
-wdt[, exclude.los.itu.0 := ifelse(los.itu<=0,1,0)]
-with(wdt[los.itu<=7], table(los.itu, mort.itu))
 los.itu.0 <- ff.np(exclude.los.itu.0)
-describe(wdt$ne.24)
-wdt[, exclude.rx.betablock := ifelse(rx.betablock==FALSE | is.na(rx.betablock),0,1)]
 rx.betablock <- ff.np(exclude.rx.betablock)
-wdt[, exclude.ne.24 := ifelse(ne.24 >= 0.1 & !is.na(ne.24),0,1)]
 low.ne.24 <- ff.np(exclude.ne.24)
 ```
 
@@ -41,7 +32,6 @@ We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock f
 ## Patient characteristics
 
 ```{r patients, include=FALSE, echo=FALSE}
-tdt <- wdt[include==1 & exclude.los.itu.0==0 & exclude.rx.betablock==0 & exclude.ne.24 ==0]
 nrow(tdt)
 
 
