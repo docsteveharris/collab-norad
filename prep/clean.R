@@ -34,7 +34,7 @@
 #  ====================================================
 #  = Load raw data and all dependencies and functions =
 #  ====================================================
-source(file="prep/load.R")
+source(file="../prep/load.R")
 
 # Drop if missing id (there's a blank row at the end of the sheet)
 tail(data.frame(rdf$id, rdf$age))
@@ -65,11 +65,25 @@ setkey(rdt, id)
 setkey(wdt, id.original)
 
 # Use date for ordering and then create a unique sequence
-describe(rdf$icu_adm) # can't use missing 100 vals
 describe(rdf$ne_start)
 wdt <- wdt[rdt[,.(ne_start),keyby=id]]
 wdt[,ne.start.dt := as.Date(ne_start, '%d/%m/%Y')]
 wdt[,ne_start    := NULL]
+
+# ICU admission
+describe(rdf$icu_adm) # can't use missing 100 vals
+wdt <- wdt[rdt[,.(icu_adm),keyby=id]]
+wdt[,icu.adm.dt := as.Date(icu_adm, '%d/%m/%Y')]
+wdt[,icu_adm    := NULL]
+
+# Work out length of stay pre-shock and post-shock
+describe(rdt$post_itu_los)
+wdt <- wdt[rdt[,.(los.post.itu=post_itu_los),keyby=id]]
+wdt[, los.post.itu:=as.integer(los.post.itu)]
+
+describe(rdt$pre_itu_los)
+wdt <- wdt[rdt[,.(los.pre.itu=pre_itu_los),keyby=id]]
+wdt[, los.pre.itu:=as.integer(los.pre.itu)]
 
 # TODO: 2014-10-13 - [ ] check for ne_start fr 2008? @roberta-sara
 describe(wdt$ne.start.dt)
@@ -212,11 +226,17 @@ setnames(rdt, "pao2_24kpa", "pao2.kpa_24")
 obs <- list(
 	c('ne', 'ne'),
 	c('hr', 'hr'),
+	c('rhythm', 'sinus'),
 	c('map', 'map'),
 	c('syst_bp', 'bps'),
+	c('diast_bp', 'bpd'),
+	c('co', 'co'),
 	c('lactate', 'lac'),
 	c('pao2.kpa', 'pao2'),
 	c('fio2', 'fio2'),
+	c('peep', 'peep'),
+	c('mv', 'mv'),
+	c('vadi', 'vadi'),
 	c('sed_score', 'sedation'),
 	c('rrt', 'rrt')
 	)
@@ -271,7 +291,28 @@ table(wdt$los.itu)
 wdt[,los.itu := ifelse(los.itu=="<1", 0, as.numeric(los.itu))]
 describe(wdt$los.itu)
 
-str(wdt)
+# ITU discharge
+wdt[, .(icu.adm.dt,los.itu,itu.dc.dt=icu.adm.dt+los.itu)]
+wdt[, itu.dc.dt := icu.adm.dt+los.itu]
+
+# ITU los post norad
+wdt[, .(icu.adm.dt,los.itu,itu.dc.dt, los.ne = itu.dc.dt-ne.start.dt)]
+wdt[, los.ne := as.integer(itu.dc.dt-ne.start.dt)]
+# Replace with missing if non-sensical
+wdt[, los.ne := ifelse(los.ne < 0, NA, los.ne)]
+describe(wdt$los.ne)
+
+describe(wdt$ne.start.dt)
+wdt[, .(icu.adm.dt,los.itu,itu.dc.dt, ne.start.dt, los.ne, los.post.itu)]
+
+
+# Unit acquired shock
+describe(rdt$ne_less24h)
+rdt[,itu.shock := ifelse(ne_less24h==1, 1, 0)]
+wdt <- wdt[rdt[,.(itu.shock),keyby=id]]
+describe(wdt$itu.shock)
+
+
 
 # Generate a hospital level variable sorted by mortality
 m <- wdt[, .(s = mean(mort.itu, na.rm=TRUE)), by=hosp]

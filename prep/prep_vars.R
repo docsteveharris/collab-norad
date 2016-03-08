@@ -25,3 +25,6 @@ wdt[, sepsis.site := ifelse(sepsis.site %in% c(
 						), sepsis.site, "Other")]
 
 table(wdt$sepsis.site)
+
+# Patient vars
+wdt[, bmi:=weight/height^2]
