@@ -10,9 +10,10 @@ library(dsbc)
 #  =====================
 # Patients meeting inclusion
 describe(wdt$age)
-wdt[, include := ifelse(age>=18, 1,0) ]
 describe(wdt$ne.1)
-wdt[, include := ifelse(age>=18, 1,0) ]
+wdt[, include := ifelse(age>=18 & ne.1 > 0, 1,0) ]
+wdt[, include := ifelse(is.na(include),0,include)]
+describe(wdt$include)
 
 # Patients to be excluded
 describe(wdt$pmh.betablock)
