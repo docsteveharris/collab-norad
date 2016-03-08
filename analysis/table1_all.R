@@ -48,12 +48,19 @@ library(XLConnect)
 rm(list=ls(all=TRUE))
 load(file='../data/cleaned.RData')
 
-wdt.original <- wdt
+# Generate working data
+source("../prep/prep_vars.R")
+source("../prep/strobe.R")
+# this saves the data to tdt so rename
+wdt <- tdt
+str(wdt)
+
 wdt$sample_N <- 1
 
+
 # Define file name
-table1.data <- '../outputs/tables/table1_all.RData'
-table1.file <- '../outputs/tables/table1_all.xlsx'
+table1.data <- '../write/tables/table1_all.RData'
+table1.file <- '../write/tables/table1_all.xlsx'
 
 # Define strata
 # NOTE: 2014-10-13 - analyse all
@@ -62,17 +69,18 @@ vars.strata <-  NA
 # Define the vars
 
 vars <- c(
+	'hosp.id',
 	'male', 'age', 'weight', 'height',
 	# 'bmi',
 	'sepsis.site', 'pmh.betablock', 
-	'sofa.0', 'sofa.1', 'sofa.24',
-	'lac.1', 'lac.24',
-	'hr.1', 'hr.24',
-	'map.1', 'map.24',
-	'bps.1', 'bps.24',
-	'pf.1', 'pf.24',
-	'rrt.1', 'rrt.24',
-	'ne.1', 'ne.24',
+	'lac.24',
+	'hr.24',
+	'map.24',
+	'bps.24',
+	'pf.24',
+	'rrt.24',
+	'ne.24',
+	'sofa.24',
 	'rx.betablock', 'rx.roids',
 	'fin.24', 'fb.24',
 	# 'fb.mean',
@@ -89,6 +97,7 @@ if (is.na(vars.strata)) {
 
 # Define the characteristics of the variables
 vars.factor <- c(
+	'hosp.id',
 	'male', 'sepsis.site', 'pmh.betablock',
 	'rx.betablock', 'rx.roids',
 	'rrt.1', 'rrt.24',
