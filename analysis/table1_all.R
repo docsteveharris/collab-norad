@@ -130,7 +130,7 @@ vars.factor <- c(
 	)
 
 # Define distributions
-vars.norm 	<- c('age', 'weight')
+vars.norm 	<- c('age', 'weight', 'hr.24', 'map.24')
 
 # NOTE: 2014-10-12 - you need to have the strata var in the data.table
 if (!vars.strata %in% vars) {
