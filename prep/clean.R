@@ -196,13 +196,13 @@ stem(wdt$fb.cum)
 # NOTE: 2015-04-08 - [ ] missing from 8 ICU data
 # Total cumulative fluid balance
 # 1--4 days monitored
-# describe(rdt$n_days_fb)
-# wdt <- wdt[rdt[,.(n_days_fb),keyby=id]]
-# setnames(wdt,'n_days_fb','fb.days')
-# describe(wdt$fb.days)
+describe(rdt$n_days_fb)
+wdt <- wdt[rdt[,.(n_days_fb),keyby=id]]
+setnames(wdt,'n_days_fb','fb.days')
+describe(wdt$fb.days)
 
-# wdt[,fb.mean := fb.cum / fb.days]
-# stem(wdt$fb.mean)
+wdt[,fb.mean := fb.cum / fb.days]
+stem(wdt$fb.mean)
 
 # Severity
 describe(rdf$adm_sofa)

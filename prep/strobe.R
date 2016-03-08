@@ -12,9 +12,13 @@ wdt <- wdt[include==1]
 
 describe(wdt$los.itu)
 describe(wdt$los.ne)
-nrow(wdt[los.ne==0])
-wdt[, exclude.los.itu.0 := ifelse(los.itu<=0 | los.ne==0,1,0)]
+nrow(wdt[los.itu==0])
 with(wdt[los.itu<=7], table(los.itu, mort.itu))
+nrow(wdt[los.ne==0])
+with(wdt[los.ne<=7], table(los.ne, mort.itu))
+wdt[, exclude.los.itu.0 := ifelse(los.itu==0 | los.ne==0,1,0)]
+wdt[, exclude.los.itu.0 := ifelse(is.na(exclude.los.itu.0),0,exclude.los.itu.0)]
+describe(wdt$exclude.los.itu.0)
 
 wdt[, exclude.rx.betablock := ifelse(rx.betablock==FALSE | is.na(rx.betablock),0,1)]
 

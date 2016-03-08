@@ -51,9 +51,11 @@ load(file='../data/cleaned.RData')
 # Generate working data
 source("../prep/prep_vars.R")
 source("../prep/strobe.R")
+str(wdt)
 # this saves the data to tdt so rename
 wdt <- tdt
 str(wdt)
+table(wdt$hosp)
 
 wdt$sample_N <- 1
 
@@ -97,7 +99,7 @@ vars <- c(
 	'sofa.24',
 	# 'rx.betablock',
 	'fin.24', 'fb.24',
-	# 'fb.mean',
+	'fb.mean',
 	'los.ne',
 	'mort.itu',
 	'mort.hosp'

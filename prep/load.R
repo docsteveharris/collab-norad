@@ -53,7 +53,19 @@ rdf <- read.table(raw_tab_file,
     sep = "\t", quote="\"",
 	header=TRUE,
     strip.white=TRUE, stringsAsFactors=FALSE )
-str(rdf)
+nrow(rdf)
+
+# Additional step to merge in n_days_fb
+# Original file     ..data/_data_in/6 centres-15-09-14.xls
+raw_tab_file <- "../data/_data_in/6 centres-15-09-14.txt"
+rdt.old <- data.table(read.table(raw_tab_file,
+    sep = "\t", quote="\"",
+    header=TRUE,
+    strip.white=TRUE, stringsAsFactors=FALSE ))
+str(rdt.old)
+rdf <- merge(rdf,rdt.old[,.(id,n_days_fb)],all.x=TRUE)
+nrow(rdf)
+describe(rdf$n_days_fb)
 
 #  =====================
 #  = Generic functions =
