@@ -2,16 +2,7 @@
 	"folders":
 	[
 		{
-			"file_exclude_patterns":
-			[
-				".RData",
-				".Rhistory"
-			],
-			"folder_exclude_patterns":
-			[
-				".Rproj.user"
-			],
-			"path": "."
+			"path": "/Users/steve/aor/academic/collab-norad/paper-euroepi"
 		}
 	]
 }

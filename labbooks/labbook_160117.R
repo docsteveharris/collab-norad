@@ -10,6 +10,7 @@
 # M
 
 rm(list=ls(all=TRUE))
+setwd("/Users/steve/aor/academic/collab-norad/src")
 
 # Set up and load data
 
@@ -36,6 +37,15 @@ str(wdt)
 assert_that(nrow(wdt)==736)
 names(wdt)
 ls()
+
+# Additionally load raw data for reference
+raw_tab_file = '../data/_data_in/8 ICUs 20150826 - corrected.txt'
+rdf <- read.table(raw_tab_file,
+    sep = "\t", quote="\"",
+	header=TRUE,
+    strip.white=TRUE, stringsAsFactors=FALSE )
+str(rdf)
+
 
 # Could you look at the NADR database for the UK hospitals only and see
 # how many received 0.1-0.3 mcg/kg/min and how many received >0.3
