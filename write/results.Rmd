@@ -9,6 +9,8 @@ output: md_document
 rm(list=ls(all=TRUE))
 source(file="../prep/load.R")
 load(file='../data/cleaned.Rdata')
+source(file="../prep/strobe.R")
+source(file="../prep/prep_vars.R")
 source(file="../share/functions4rmd.R")
 ```
 
@@ -16,7 +18,7 @@ source(file="../share/functions4rmd.R")
 
 ## Patients
 
-We recruited one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were locally diagnosed and treated for infection, required a vasopressor infusion (equivalent to noradrenaline at 0.1 mcg/kg/min or greater) after 24 hours of stabilisation in the critical care unit, and had not received beta-blocker therapy during the same time period.
+We recruited one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were locally diagnosed and treated for infection, required a vasopressor infusion after 24 hours of stabilisation in the critical care unit, and had not received beta-blocker therapy during the same time period.
 
 ```{r strobe, include=FALSE, echo=FALSE}
 
@@ -27,7 +29,7 @@ low.ne.24 <- ff.np(exclude.ne.24)
 
 # Results
 
-We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock from `r length(unique(wdt$hosp))` hospitals in 4 European countries. We excluded `r los.itu.0$n[2]` patients (`r los.itu.0$p[2]`) who were discharged within 24 hours (one survivor, one non-surivor); `r rx.betablock$n[2]` patients (`r rx.betablock$p[2]`) who received beta-blocker therapy during the first 24 hours; and, `r low.ne.24$n[2]` patients (`r low.ne.24$p[2]`) where the noradrenaline dose had been weaned to below 0.1 mcg/kg/min at 24 hours.
+We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock from `r length(unique(wdt$hosp))` hospitals in 4 European countries. We excluded `r los.itu.0$n[2]` patients (`r los.itu.0$p[2]`) who were discharged within 24 hours (one survivor, one non-surivor); `r rx.betablock$n[2]` patients (`r rx.betablock$p[2]`) who received beta-blocker therapy during the first 24 hours; and, `r low.ne.24$n[2]` patients (`r low.ne.24$p[2]`) where noradrenaline infusions had been weaned by 24 hours.
 
 ## Patient characteristics
 
