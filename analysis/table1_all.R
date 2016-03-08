@@ -70,22 +70,37 @@ vars.strata <-  NA
 
 vars <- c(
 	'hosp.id',
-	'male', 'age', 'weight', 'height',
-	# 'bmi',
-	'sepsis.site', 'pmh.betablock', 
-	'lac.24',
+	'male',
+	'age',
+	'weight',
+	'bmi',
+	# 'height',
+	'itu.shock',
+	'sepsis.site',
+	# 'pmh.betablock', 
 	'hr.24',
+	'non.sinus.24',
 	'map.24',
 	'bps.24',
+	'bpd.24',
+	'co.24',
+	'lac.24',
+	'mv.24',
 	'pf.24',
+	'peep.24',
 	'rrt.24',
 	'ne.24',
+	'pressor.other.24',
+	'vadi.24',
+	'rx.roids',
+	'sedation.24',
 	'sofa.24',
-	'rx.betablock', 'rx.roids',
+	# 'rx.betablock',
 	'fin.24', 'fb.24',
 	# 'fb.mean',
-	'los.itu',
-	'mort.itu', 'mort.hosp'
+	'los.ne',
+	'mort.itu',
+	'mort.hosp'
 	)
 
 vars <- c('sample_N', vars) # prepend all obs for total counts
@@ -98,14 +113,22 @@ if (is.na(vars.strata)) {
 # Define the characteristics of the variables
 vars.factor <- c(
 	'hosp.id',
-	'male', 'sepsis.site', 'pmh.betablock',
-	'rx.betablock', 'rx.roids',
-	'rrt.1', 'rrt.24',
-	'mort.itu', 'mort.hosp'
+	'male',
+	'sepsis.site',
+	# 'pmh.betablock',
+	# 'rx.betablock',
+	'itu.shock',
+	'non.sinus.24',
+	'mv.24',
+	'pressor.other.24',
+	'rx.roids',
+	'rrt.24',
+	'mort.itu',
+	'mort.hosp'
 	)
 
 # Define distributions
-vars.norm 	<- c('age', 'height', 'weight')
+vars.norm 	<- c('age', 'weight')
 
 # NOTE: 2014-10-12 - you need to have the strata var in the data.table
 if (!vars.strata %in% vars) {
@@ -114,6 +137,7 @@ if (!vars.strata %in% vars) {
 }
 vars.factor <- c('sample_N', vars.factor) # prepend all obs for total counts
 vars.cont 	<- vars[!vars %in% vars.factor]
+str(wdt[,vars.cont,with=FALSE])
 
 
 # Now update columns to be factors if not already

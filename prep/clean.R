@@ -225,8 +225,10 @@ setnames(rdt, "pao2_24kpa", "pao2.kpa_24")
 # Norad, heart rate etc
 obs <- list(
 	c('ne', 'ne'),
+	c('other_vas', 'pressor.other'),
+	c('vadi', 'vadi'),
 	c('hr', 'hr'),
-	c('rhythm', 'sinus'),
+	c('rhythm', 'non.sinus'),
 	c('map', 'map'),
 	c('syst_bp', 'bps'),
 	c('diast_bp', 'bpd'),
@@ -236,7 +238,6 @@ obs <- list(
 	c('fio2', 'fio2'),
 	c('peep', 'peep'),
 	c('mv', 'mv'),
-	c('vadi', 'vadi'),
 	c('sed_score', 'sedation'),
 	c('rrt', 'rrt')
 	)
@@ -256,6 +257,8 @@ for (i in 1:length(obs)) {
 }
 str(wdt)
 
+wdt[, peep.1 := round(as.numeric(peep.1))]
+wdt[, peep.24 := round(as.numeric(peep.24))]
 
 # Checks
 # ------
