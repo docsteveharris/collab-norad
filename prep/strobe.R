@@ -27,5 +27,15 @@ nrow(wdt[ne.24==0])
 wdt[, exclude.ne.24 := ifelse(ne.24 > 0 & !is.na(ne.24),0,1)]
 
 tdt <- wdt[include==1 & exclude.los.itu.0==0 & exclude.rx.betablock==0 & exclude.ne.24 ==0]
-names(tdt)
+# names(tdt)
 
+# Prepare hospital name sorted by mean mortality
+# do this after selection
+table(tdt$hosp.id)
+m <- tdt[, .(s = mean(mort.itu, na.rm=TRUE)), by=hosp.id]
+setorder(m, s)
+m[, hosp.id.sort := .I ]
+m[, hosp.id.sort := factor(hosp.id.sort, labels=m$hosp.id, ordered=TRUE)]
+setkey(tdt,hosp.id)
+tdt <- tdt[m[,.(hosp.id,hosp.id.sort)]]
+# str(tdt)

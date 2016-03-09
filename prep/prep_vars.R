@@ -29,3 +29,4 @@ table(wdt$sepsis.site)
 # Patient vars
 wdt[, bmi:=weight/(height/100)^2]
 describe(wdt$bmi)
+
