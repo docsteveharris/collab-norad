@@ -27,4 +27,5 @@ nrow(wdt[ne.24==0])
 wdt[, exclude.ne.24 := ifelse(ne.24 > 0 & !is.na(ne.24),0,1)]
 
 tdt <- wdt[include==1 & exclude.los.itu.0==0 & exclude.rx.betablock==0 & exclude.ne.24 ==0]
+names(tdt)
 

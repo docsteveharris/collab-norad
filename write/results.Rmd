@@ -20,41 +20,49 @@ source(file="../share/functions4rmd.R")
 
 We recruited one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were locally diagnosed and treated for infection, required a vasopressor infusion after 24 hours of stabilisation in the critical care unit, and had not received beta-blocker therapy during the same time period.
 
-```{r strobe, include=FALSE, echo=FALSE}
-
-los.itu.0 <- ff.np(exclude.los.itu.0)
-rx.betablock <- ff.np(exclude.rx.betablock)
-low.ne.24 <- ff.np(exclude.ne.24)
-```
-
-# Results
-
-We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock from `r length(unique(wdt$hosp))` hospitals in 4 European countries. We excluded `r los.itu.0$n[2]` patients (`r los.itu.0$p[2]`) who were discharged within 24 hours (one survivor, one non-surivor); `r rx.betablock$n[2]` patients (`r rx.betablock$p[2]`) who received beta-blocker therapy during the first 24 hours; and, `r low.ne.24$n[2]` patients (`r low.ne.24$p[2]`) where noradrenaline infusions had been weaned by 24 hours.
-
-## Patient characteristics
-
-```{r patients, include=FALSE, echo=FALSE}
-nrow(tdt)
-
-
-```
-
-
-see Table 1
-
-
-Morelli criteria to compare in table
+<!-- Morelli criteria to compare in table
 
 - age < 18
 - beta-blockers prior to randomisation
 - cardiac index < 2.2 with high LAP
 - significant valvular heart disease
+ -->
+
+## Definitions
+
+- need to describe vasopressor and sedation scores
+
+## Statistical analaysis	
+
+
+
+# Results
+```{r strobe, include=FALSE, echo=FALSE}
+
+los.itu.0    <- ff.np(exclude.los.itu.0)
+rx.betablock <- ff.np(exclude.rx.betablock)
+low.ne.24    <- ff.np(exclude.ne.24)
+hosp.n       <- ff.mediqr(N, data=tdt[,.N,by=hosp])
+```
+
+We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock from `r length(unique(wdt$hosp))` hospitals in 4 European countries. We excluded `r los.itu.0$n[2]` patients (`r los.itu.0$p[2]`) who were discharged within 24 hours (one survivor, one non-surivor); `r rx.betablock$n[2]` patients (`r rx.betablock$p[2]`) who received beta-blocker therapy during the first 24 hours; and, `r low.ne.24$n[2]` patients (`r low.ne.24$p[2]`) where noradrenaline infusions had been weaned by 24 hours. The final cohort included `r nrow(tdt)` patients with each hospital contributing a median of `r hosp.n$q50` patients (IQR `r hosp.n$iqr`).
+
+## Patient characteristics
+
+```{r patients, include=FALSE, echo=FALSE}
+# source(file="../analysis/table1_all.R")
+```
+<!-- see Table 1 -->
+
+Vasopressor support for septic shock commenced on the first ICU day for 311 (75%) patients, and pneumonia was the commonest cause of infection (223 patients, 46%). The median SOFA score at 24 hours was 10 (IQR 8 to 12). The majority of patients (424, 87%) were mechanically ventilated, and 140 (29%) had already started renal replacement therapy (RRT) at 24 hours. The overall ICU and hospital mortalities were 41% (198 deaths), and 48% (233 deaths) respectively.
 
 ## Variation in practice between sites
 
+- blood pressure targets
+- noradrenaline dosing
 - sedation
 - fluid management
-- patient characteristics
+- mortality
 
 ## Variation in mortality between sites
 
