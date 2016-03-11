@@ -26,6 +26,20 @@ describe(wdt$ne.24)
 nrow(wdt[ne.24==0])
 wdt[, exclude.ne.24 := ifelse(ne.24 > 0 & !is.na(ne.24),0,1)]
 
+
+# Encode the hospitals
+(dt.hosp <- data.table(hosp=unique(wdt$hosp), hosp.id=rnorm(8)))
+setorder(dt.hosp,hosp.id)
+dt.hosp[,hosp.id := LETTERS[.I]]
+dt.hosp
+setkey(dt.hosp, hosp)
+setkey(wdt, hosp)
+wdt <- dt.hosp[wdt]
+wdt[, hosp.id:=factor(hosp.id)]
+setkey(wdt,id)
+str(wdt)
+
+# Prepare STROBE data
 tdt <- wdt[include==1 & exclude.los.itu.0==0 & exclude.rx.betablock==0 & exclude.ne.24 ==0]
 # names(tdt)
 

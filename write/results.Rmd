@@ -31,6 +31,17 @@ We recruited one hundred consecutive admissions with septic shock from eight cri
 ## Definitions
 
 - need to describe vasopressor and sedation scores
+- classify high vs low map target
+	- use 75 as per Asfar
+- classify high vs low heart rate groups: split at [0,95) and [95,]
+
+## Research questions
+
+- effect of map (target), heart rate, and norad dose on outcome
+	+ hypothesis 1: high vs low heart rates respond differently to norad?
+- inter-site variablity in treatment approaches after controlling for hour 1 status
+- inter-site variability in mortality after controlling for hour 1 status and ...
+	+ message: mortality is high but there is significant variability between sites  even after controlling for obvious stuff
 
 ## Statistical analaysis	
 
@@ -56,18 +67,47 @@ We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock f
 
 Vasopressor support for septic shock commenced on the first ICU day for 311 (75%) patients, and pneumonia was the commonest cause of infection (223 patients, 46%). The median SOFA score at 24 hours was 10 (IQR 8 to 12). The majority of patients (424, 87%) were mechanically ventilated, and 140 (29%) had already started renal replacement therapy (RRT) at 24 hours. The overall ICU and hospital mortalities were 41% (198 deaths), and 48% (233 deaths) respectively.
 
+- [ ] report patients meeting criteria for septic shock as per Sepsis 3
+	- blood pressure or norad (all)
+	- lactate > 2
+
 ## Variation in practice between sites
 
-- blood pressure targets
-- noradrenaline dosing
-- sedation
-- fluid management
-- mortality
+- [ ] TODO(2016-03-10): remove patient physiology, report treatment only except blood pressure which you can consider a target; therefore add in sedation and vadi
+
+We plotted the distribution of key haemodynamic parameters using separate box and whisker plots for each critical care unit. We ordered the plots by ther mean ICU mortality for the each hospital (Figure 1). Inspection of these showed that mean arterial pressure and noradrenaline doses were higher in units that had higher mean mortalities. Conversely, first 24 hour fluid balances were higher in units with lower mortalities. There was no discernible trend for heart rate.
+<!-- risk: ecological fallacy -->
+
+<!-- notes:
+
+Now model this
+
+- treatment variables in 1st 24 hours
+	+ fluid balance
+	+ sedation
+	+ noradrenaline use
+	+ target blood pressure
+
+- adjust for
+	- baseline severity of illness at admission
+	- age
+	- sex
+	- admission diagnosis
+	- sepsis by body system
+	- control for current
+		+ steroid use
+		+ other vasopressors
+- report variability
+	+ site vs residual: how much is accounted for unit level practice
+
+ -->
 
 ## Variation in mortality between sites
 
-a
-## Model 24 hour noradrenaline doses
+- [ ] TODO(2016-03-10): compare mortality to that reported in JAMA paper
+- [ ] TODO(2016-03-10): report intersite variation in mortailty
+- [ ] TODO(2016-03-10): look for heart rate mortality interaction
+
 
 
 

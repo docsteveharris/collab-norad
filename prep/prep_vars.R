@@ -1,17 +1,5 @@
 # Prep generic vars
 
-# Encode the hospitals
-(dt.hosp <- data.table(hosp=unique(wdt$hosp), hosp.id=rnorm(8)))
-setorder(dt.hosp,hosp.id)
-dt.hosp[,hosp.id := .I]
-dt.hosp
-setkey(dt.hosp, hosp)
-setkey(wdt, hosp)
-wdt <- dt.hosp[wdt]
-wdt[, hosp.id:=factor(hosp.id)]
-setkey(wdt,id)
-str(wdt)
-
 # Clean up sepsis site
 table(wdt$sepsis.site)
 wdt[, sepsis.site := ifelse(sepsis.site == "Acute abdo infection", "Abdominal", sepsis.site)]
