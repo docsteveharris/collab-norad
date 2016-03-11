@@ -18,3 +18,10 @@ table(wdt$sepsis.site)
 wdt[, bmi:=weight/(height/100)^2]
 describe(wdt$bmi)
 
+# Construct sofa.1 without norad points
+require(plyr)
+wdt[, sofa.1.cvs := 2 + cut(ne.1, c(0,0.1,10), labels=FALSE, right=FALSE)]
+describe(wdt$sofa.1.cvs)
+wdt[, sofa.1.nocvs := sofa.1 - sofa.1.cvs]
+
+
