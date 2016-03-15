@@ -36,15 +36,18 @@ source("../prep/strobe.R")
 wdt <- tdt
 str(wdt)
 
+str(wdt$hosp.id.sort)
+
+# - [ ] NOTE(2016-03-15): dropping this b/c not a treatment variable
 # Heart rate
-p <- ggplot(data=wdt, aes(y=hr.24, x=hosp.id.sort))
-p <- p + geom_boxplot(notch=TRUE, varwidth=TRUE) +
-	coord_cartesian(ylim=c(40,160)) +
-	ylab("Heart rate (per min)") +
-	xlab("Intensive Care Unit") +
-	theme_minimal()
-p
-ggsave(p, file="../write/figures/process_hr.pdf", width=3, height=3, scale=2)
+# p <- ggplot(data=wdt, aes(y=hr.24, x=hosp.id.sort))
+# p <- p + geom_boxplot(notch=TRUE, varwidth=TRUE) +
+# 	coord_cartesian(ylim=c(40,160)) +
+# 	ylab("Heart rate (per min)") +
+# 	xlab("Intensive Care Unit") +
+# 	theme_minimal()
+# p
+# ggsave(p, file="../write/figures/process_hr.pdf", width=3, height=3, scale=2)
 
 # MAP
 p <- ggplot(data=wdt, aes(y=map.24, x=hosp.id.sort))
@@ -54,7 +57,7 @@ p <- p + geom_boxplot(notch=TRUE, varwidth=TRUE) +
 	xlab("Intensive Care Unit") +
 	theme_minimal()
 p
-ggsave(p, file="../write/figures/process_map.pdf", width=3, height=3, scale=2)
+ggsave(p, file="../write/figures/process_map.eps", width=3, height=3, scale=2)
 
 # Noradrenaline
 p <- ggplot(data=wdt, aes(y=ne.24, x=hosp.id.sort))
@@ -64,7 +67,7 @@ p <- p + geom_boxplot(notch=TRUE, varwidth=TRUE) +
 	xlab("Intensive Care Unit") +
 	theme_minimal()
 p
-ggsave(p, file="../write/figures/process_ne24.pdf", width=3, height=3, scale=2)
+ggsave(p, file="../write/figures/process_ne24.eps", width=3, height=3, scale=2)
 
 # Fluids
 p <- ggplot(data=wdt, aes(y=fb.24, x=hosp.id.sort))
@@ -74,7 +77,7 @@ p <- p + geom_boxplot(notch=TRUE, varwidth=TRUE) +
 	xlab("Intensive Care Unit") +
 	theme_minimal()
 p
-ggsave(p, file="../write/figures/process_fb24.pdf", width=3, height=3, scale=2)
+ggsave(p, file="../write/figures/process_fb24.eps", width=3, height=3, scale=2)
 
 # # Sedation
 # p <- ggplot(data=wdt, aes(y=sedation.24, x=hosp.id.sort))
