@@ -14,6 +14,20 @@ source(file="../prep/prep_vars.R")
 source(file="../share/functions4rmd.R")
 ```
 
+# Abstract
+
+# Introduction
+
+
+Qns.
+
+1. With reference to Morelli, if we capture a similar population then is the mortality observed similar to the control group - with particular relevance to patients with high heart rates
+2. How much does treatment vary between sites wrt norad, fluid, and map?
+3. What determines mortality at 24h, and specifically
+	- what is the site effect
+	- what is the effect of high heart rate
+3. How much does mortality vary between sites?
+
 # Methods
 
 ## Patients
@@ -33,7 +47,7 @@ We recruited one hundred consecutive admissions with septic shock from eight cri
 - need to describe vasopressor and sedation scores
 - classify high vs low map target
 	- use 75 as per Asfar
-- classify high vs low heart rate groups: split at [0,95) and [95,]
+- classify high vs low heart rate groups: split at [0,95) and [95,] as per Morelli
 
 ## Research questions
 
@@ -62,20 +76,22 @@ We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock f
 
 ```{r patients, include=FALSE, echo=FALSE}
 # source(file="../analysis/table1_all.R")
+(lac24 <- ff.mediqr(lac.24,dp=1))
+ff.np
+(lac24gt2 <- ff.np(var=lac24gt2, data=wdt[,.(lac24gt2=ifelse(lac.24>2 & !is.na(lac.24),1,0))], dp=0)) 
 ```
 <!-- see Table 1 -->
 
-Vasopressor support for septic shock commenced on the first ICU day for 311 (75%) patients, and pneumonia was the commonest cause of infection (223 patients, 46%). The median SOFA score at 24 hours was 10 (IQR 8 to 12). The majority of patients (424, 87%) were mechanically ventilated, and 140 (29%) had already started renal replacement therapy (RRT) at 24 hours. The overall ICU and hospital mortalities were 41% (198 deaths), and 48% (233 deaths) respectively.
+Vasopressor support for septic shock commenced on the first ICU day for 311 (75%) patients --- the remaining patients developing septic shock during their critical care stay. Pneumonia was the commonest cause of infection (223 patients, 46%). The median SOFA score at 24 hours was 10 (IQR 8 to 12), and lactate at 24 hours was `r lac24$q50` mmol/l (IQR `r lac24$iqr`) with `r lac24gt2$n[2]` (`r lac24gt2$p[2]`) patients have a lactate greater than 2 mmol/l. The majority of patients (424, 87%) were mechanically ventilated, and 140 (29%) had already started renal replacement therapy (RRT) at 24 hours. The overall ICU and hospital mortalities were 41% (198 deaths), and 48% (233 deaths) respectively. 
 
-- [ ] report patients meeting criteria for septic shock as per Sepsis 3
-	- blood pressure or norad (all)
-	- lactate > 2
 
 ## Variation in practice between sites
 
 - [ ] TODO(2016-03-10): remove patient physiology, report treatment only except blood pressure which you can consider a target; therefore add in sedation and vadi
+- [ ] TODO(2016-03-15): add in a test for trend?
 
-We plotted the distribution of key haemodynamic parameters using separate box and whisker plots for each critical care unit. We ordered the plots by ther mean ICU mortality for the each hospital (Figure 1). Inspection of these showed that mean arterial pressure and noradrenaline doses were higher in units that had higher mean mortalities. Conversely, first 24 hour fluid balances were higher in units with lower mortalities. There was no discernible trend for heart rate.
+We plotted the distribution of key haemodynamic parameters using separate box and whisker plots for each critical care unit. We ordered the plots by ther mean ICU mortality for the each hospital (Figure 1). Inspection of these showed that mean arterial pressure and noradrenaline doses were higher in units that had higher mean mortalities. Conversely, first 24 hour fluid balances were higher in units with lower mortalities. 
+
 <!-- risk: ecological fallacy -->
 
 <!-- notes:
@@ -102,6 +118,13 @@ Now model this
 
  -->
 
+## Predictors of 24 hour treatment variables
+
+Discuss model output for 
+- ne.24
+- fb.24
+- map.24
+
 ## Variation in mortality between sites
 
 - [ ] TODO(2016-03-10): compare mortality to that reported in JAMA paper
@@ -112,3 +135,8 @@ Now model this
 
 
 
+# Discussion points
+
+- [ ] report patients meeting criteria for septic shock as per Sepsis 3
+	- blood pressure or norad (all)
+	- lactate > 2

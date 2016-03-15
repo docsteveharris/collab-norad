@@ -26,3 +26,9 @@ describe(wdt$sofa.1.cvs)
 wdt[, sofa.1.nocvs := sofa.1 - sofa.1.cvs]
 
 
+#  ========================================================
+#  = define low/high blood pressure and heart rate groups =
+#  ========================================================
+wdt[,map.high := ifelse(map.24 >= 75, 1, 0 )]
+wdt[,hr.high := ifelse(hr.24 >= 95, 1, 0 )]
+with(wdt, table(map.high, hr.high))

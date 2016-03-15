@@ -20,6 +20,13 @@ library(ggplot2)
 library(reshape2)
 
 rm(list=ls(all=TRUE))
+source(file="../prep/load.R")
+source(file="../share/functions4rmd.R")
+load(file='../data/cleaned.Rdata')
+source(file="../prep/strobe.R")
+wdt.orginal <- wdt
+wdt <- tdt
+source(file="../prep/prep_vars.R")
 
 # Load functions
 # intra-class correlation
@@ -82,13 +89,6 @@ coef.plot <- function(model=m) {
 	return(gg.p)
 }
 
-source(file="../prep/load.R")
-source(file="../share/functions4rmd.R")
-load(file='../data/cleaned.Rdata')
-source(file="../prep/strobe.R")
-wdt.orginal <- wdt
-wdt <- tdt
-source(file="../prep/prep_vars.R")
 
 
 
@@ -160,7 +160,7 @@ m <- lmer(ne.24.log ~
 	sepsis.site +
 	rescale(sofa.1.nocvs) +
 	rescale(ne.1) +
-	rescale(fin.24) +
+	rescale(fb.24) +
 	# rescale(peep.24) +
 	mv.24 +
 	rescale(sedation.24) +
@@ -171,9 +171,11 @@ coef.plot(m)
 ICC(m)
 
 # - [ ] TODO(2016-03-11): include the ranef coefficients in the plot for scale
+
 # - [ ] TODO(2016-03-15): now model 1st 24 hr fluid balance
+# should move this to its own file?
 names(wdt)
-m <- lmer(fin.24 ~
+m <- lmer(fb.24 ~
 	male +
 	rescale(age) +
 	weight +
@@ -189,4 +191,27 @@ display(m)
 coef.plot(m)
 ICC(m)
 
+# - [ ] TODO(2016-03-15): now model MAP at 24h
+names(wdt)
+summary(wdt$map.24)
+qplot(wdt$map.24)
+# looks normal therefore no transformation needed of depvar
+
+m <- lmer(map.24 ~
+	male +
+	rescale(age) +
+	weight +
+	sepsis.site +
+	rescale(sofa.1.nocvs) +
+	rescale(ne.1) +
+	rescale(ne.24) +
+	rescale(fb.24) +
+	# rescale(peep.24) +
+	mv.24 +
+	rescale(sedation.24) +
+	1 + (1 | hosp.id), data=wdt)
+display(m)
+# - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
+coef.plot(m)
+ICC(m)
 
