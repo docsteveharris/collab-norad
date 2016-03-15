@@ -21,3 +21,10 @@ lookfor(fb)
 # Mortality by heart rate
 library(gmodels)
 with(wdt, CrossTable(mort.itu, hr.high))
+
+
+# Understand mean arterial pressure by centre
+with(wdt, tapply(map.24, hosp.id.sort, mean, na.rm=TRUE))
+with(wdt, tapply(map.24, hosp.id.sort, summary, na.rm=TRUE))
+with(wdt, tapply(ne.24, hosp.id.sort, mean, na.rm=TRUE))
+with(wdt, tapply(ne.24, hosp, mean, na.rm=TRUE))

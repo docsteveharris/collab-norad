@@ -134,7 +134,7 @@ exp(mean(log(wdt$ne.24)))
 
 # Now model fully
 library(lme4)
-m <- lmer(ne.24.log ~ 1 + (1 | hosp.id), data=wdt)
+m <- lmer(ne.24.log ~ (1 | hosp.id), data=wdt)
 display(m)
 m <- lmer(ne.24.log ~ rescale(log(ne.1)) + (1 | hosp.id), data=wdt)
 display(m)
@@ -152,23 +152,46 @@ se.ranef(m)
 names(wdt)
 describe(wdt$peep.24)
 describe(wdt$mv.24)
+describe(wdt$vadi.24)
 nrow(wdt)
 # Add in baseline vars
-m <- lmer(ne.24.log ~
+m <- lmer(log(ne.24) ~
 	male +
 	rescale(age) +
 	sepsis.site +
 	rescale(sofa.1.nocvs) +
 	rescale(ne.1) +
-	rescale(fb.24) +
+	rescale(fin.24) +
+	rx.roids +
+	rescale(vadi.24) +
 	# rescale(peep.24) +
 	mv.24 +
 	rescale(sedation.24) +
-	1 + (1 | hosp.id), data=wdt)
+	(1 | hosp.id), data=wdt)
 display(m)
 # - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
 coef.plot(m)
 ICC(m)
+
+# model ne.delta
+m <- lmer(log(ne.24-ne.1) ~
+	male +
+	rescale(age) +
+	sepsis.site +
+	rescale(sofa.1.nocvs) +
+	rescale(ne.1) +
+	rescale(fin.24) +
+	rx.roids +
+	rescale(vadi.24) +
+	# rescale(peep.24) +
+	mv.24 +
+	rescale(sedation.24) +
+	(1 | hosp.id), data=wdt)
+display(m)
+# - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
+coef.plot(m)
+ICC(m)
+
 
 # - [ ] TODO(2016-03-11): include the ranef coefficients in the plot for scale
 
@@ -185,7 +208,7 @@ m <- lmer(fb.24 ~
 	# rescale(peep.24) +
 	mv.24 +
 	rescale(sedation.24) +
-	1 + (1 | hosp.id), data=wdt)
+	(1 | hosp.id), data=wdt)
 display(m)
 # - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
 coef.plot(m)
@@ -209,9 +232,26 @@ m <- lmer(map.24 ~
 	# rescale(peep.24) +
 	mv.24 +
 	rescale(sedation.24) +
-	1 + (1 | hosp.id), data=wdt)
+	(1 | hosp.id), data=wdt)
 display(m)
 # - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
 coef.plot(m)
 ICC(m)
 
+
+m <- lmer(hr.24 ~
+	male +
+	rescale(age) +
+	sepsis.site +
+	rescale(sofa.1) +
+	rescale(map.24) +
+	rescale(ne.24) +
+	rescale(fb.24) +
+	# rescale(peep.24) +
+	mv.24 +
+	rescale(sedation.24) +
+	(1 | hosp.id), data=wdt)
+display(m)
+# - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
+coef.plot(m)
+ICC(m)

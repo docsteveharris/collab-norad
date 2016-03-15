@@ -18,6 +18,18 @@ source(file="../share/functions4rmd.R")
 
 # Introduction
 
+Justification
+
+- it is well known that high heart rate is associated with poor outcome 
+- Morelli recently selected patients with high heart rate and randomised them to treatment with esmolol with dramatic effects,  specifically: 
+	+ a reduction in noradrenaline dose
+	+ a reduction in mortality
+- also the question that 
+	- clearly noradrenaline may be a proxy for underlying disease severity, but is it also possible that high noradrenaline is _harmful_ esp. certain subgroups i.e. those with tachycardia
+- what are the deteriminants of noradrenaline dose at 24h
+	- and after adjusting for these then what is the effect of noradrenaline on outcome
+
+- 2ndry qn: apart from v high control group mortality which raised the question of practise and case mix differences 
 
 Qns.
 

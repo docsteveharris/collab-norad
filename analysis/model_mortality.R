@@ -209,16 +209,38 @@ gg.q 	+
 m <- glm(mort.itu ~
 	male +
 	rescale(age) +
-	rescale(sofa.1.nocvs) +
 	sepsis.site +
+	rescale(sofa.1) +
 	rescale(fb.24) +
 	map.high + 
 	hr.high + 
-	# rescale(ne.1) +
 	rescale(ne.24) +
-	hr.high:rescale(ne.24) 
-	# hr.high:map.high +
+	hr.high:rescale(ne.24) +
+	hr.high:map.high
 	, data=wdt)
 display(m)
 coef.plot(m)
 
+# - [ ] TODO(2016-03-15): run twice with sofa.1 and sofa.1.nocvs + ne.1
+# check that splitting doesn't make a difference to any conclusions
+
+# Multi-level
+with(wdt, summary(ne.24-ne.1))
+m <- glmer(mort.itu ~
+	male +
+	rescale(age) +
+	sepsis.site +
+	rescale(sofa.1.nocvs) +
+	rescale(ne.1) +
+	rescale(vadi.24) +
+	rescale(sedation.24) +
+	rescale(fb.24) +
+	map.high + 
+	hr.high + 
+	rescale(ne.24-ne.1) +
+	hr.high:rescale(ne.24-ne.1) +
+	map.high:rescale(ne.24-ne.1) +
+	(1 | hosp.id)
+	, data=wdt, family=binomial(link="logit"))
+display(m)
+coef.plot(m)
