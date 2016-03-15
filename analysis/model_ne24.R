@@ -20,6 +20,68 @@ library(ggplot2)
 library(reshape2)
 
 rm(list=ls(all=TRUE))
+
+# Load functions
+# intra-class correlation
+ICC <- function(m) {
+	require(lme4)
+	v <- VarCorr(m)
+	print(v)
+	# get the group level standard deviation
+	sd.g <- attr(v[[1]], "stddev")
+	# get the residual standard deviation
+	sd.r <- attr(v, "sc")
+	# calculate the ICC
+	icc <- (sd.g^2 / (sd.g^2 + sd.r^2))
+	# set the name
+	names(icc)[1] <- "ICC"
+	# calculate the variance ratio
+	var.ratio <- sd.g^2 / sd.r^2
+	names(var.ratio)[1] <- "Variance ratio"
+	return(c(icc,var.ratio))
+}
+
+# function to produce coefficient plots
+coef.plot <- function(model=m) {
+
+	# Load packages
+	require(data.table)
+	require(ggplot2)
+
+	# Test the model class
+	if(class(m)=="lm") {
+		m.coef <- summary(m)$coefficients
+		m.coef <- data.frame(summary(m)$coefficients)
+		colnames(m.coef)[1] <- "est"
+		colnames(m.coef)[2] <- "se"
+		colnames(m.coef)[3] <- "t"
+		colnames(m.coef)[4] <- "p"
+	} else if (class(m)=="lmerMod") {
+		m.coef <- data.frame(summary(m)$coefficients)
+		colnames(m.coef)[1] <- "est"
+		colnames(m.coef)[2] <- "se"
+		colnames(m.coef)[3] <- "t"
+	} else {
+		warning("Unknown model class: exiting function call")
+		return(NULL)
+	}
+
+	# Convert to data.table and keep rownames
+	m.coef <- data.table(m.coef, keep.rownames=TRUE)
+	# Remove the intercept
+	m.coef <- m.coef[rn!="(Intercept)"]
+	print(m.coef)
+
+	gg.p <- ggplot(data=m.coef, aes(x=rn, y=est)) + 
+		geom_hline(yintercept=0, colour="grey", ) +
+		geom_linerange(aes(ymin=est - 2 * se, ymax=est + 2 * se), colour="grey") +
+		geom_pointrange(aes(ymin=est - 1 * se, ymax=est + 1 * se), lwd=0.5, fatten=2) +
+		xlab("Predictor") + ylab("Effect estimate") +
+		coord_flip() +
+		theme_minimal()
+	return(gg.p)
+}
+
 source(file="../prep/load.R")
 source(file="../share/functions4rmd.R")
 load(file='../data/cleaned.Rdata')
@@ -57,7 +119,13 @@ describe(wdt$ne.24.log)
 
 # Rough working for how to generate model
 m <- lm(ne.24.log ~ 1, data=wdt)
-display(m)
+m <- lm(ne.24.log ~ age, data=wdt)
+# How to extract model parameter estimates for coefplot
+class(m)
+summary(m)$coefficients
+str(summary(m)$coefficients)
+
+
 # exponentiate predictions to return to original scale
 yhat <- exp(predict(m, interval="confidence"))
 head(yhat)
@@ -80,25 +148,11 @@ ranef(m)$hosp.id[,1] + fixef(m)[1]
 # view the standard errors of the random effects
 se.ranef(m)
 
-# intra-class correlation
-ICC <- function(m) {
-	require(lme4)
-	v <- VarCorr(m)
-	print(v)
-	# get the group level standard deviation
-	sd.g <- attr(v[[1]], "stddev")
-	# get the residual standard deviation
-	sd.r <- attr(v, "sc")
-	# calculate the ICC
-	icc <- (sd.g^2 / (sd.g^2 + sd.r^2))
-	# set the name
-	names(icc)[1] <- "ICC"
-	# calculate the variance ratio
-	var.ratio <- sd.g^2 / sd.r^2
-	names(var.ratio)[1] <- "Variance ratio"
-	return(c(icc,var.ratio))
-}
 
+names(wdt)
+describe(wdt$peep.24)
+describe(wdt$mv.24)
+nrow(wdt)
 # Add in baseline vars
 m <- lmer(ne.24.log ~
 	male +
@@ -106,28 +160,33 @@ m <- lmer(ne.24.log ~
 	sepsis.site +
 	rescale(sofa.1.nocvs) +
 	rescale(ne.1) +
-	rescale(fb.24) +
+	rescale(fin.24) +
+	# rescale(peep.24) +
+	mv.24 +
 	rescale(sedation.24) +
 	1 + (1 | hosp.id), data=wdt)
 display(m)
+# - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
+coef.plot(m)
 ICC(m)
 
-# - [ ] TODO(2016-03-11): Now plot as per coef-plot 
 # - [ ] TODO(2016-03-11): include the ranef coefficients in the plot for scale
-
-
-# Playing ...
-# now model 1st 24 hr fluid balance
-# Add in baseline vars
-qplot(wdt$fb.24)
-m <- lmer((fb.24) ~
+# - [ ] TODO(2016-03-15): now model 1st 24 hr fluid balance
+names(wdt)
+m <- lmer(fin.24 ~
 	male +
 	rescale(age) +
+	weight +
 	sepsis.site +
 	rescale(sofa.1.nocvs) +
 	rescale(ne.1) +
+	# rescale(peep.24) +
+	mv.24 +
 	rescale(sedation.24) +
 	1 + (1 | hosp.id), data=wdt)
 display(m)
+# - [ ] TODO(2016-03-11): Now plot as per coef-plot @done
+coef.plot(m)
 ICC(m)
+
 
