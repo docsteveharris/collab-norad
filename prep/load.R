@@ -34,7 +34,7 @@ rm(list=ls(all=TRUE))
 require(Hmisc)
 require(assertthat)
 require(gmodels)
-require(descr)
+# require(descr)
 require(data.table)
 require(XLConnect)
 
@@ -55,7 +55,9 @@ rdf <- read.table(raw_tab_file,
     strip.white=TRUE, stringsAsFactors=FALSE )
 nrow(rdf)
 
+
 # Additional step to merge in n_days_fb
+# Import both original and old to check
 # Original file     ..data/_data_in/6 centres-15-09-14.xls
 raw_tab_file <- "../data/_data_in/6 centres-15-09-14.txt"
 rdt.old <- data.table(read.table(raw_tab_file,
@@ -63,9 +65,28 @@ rdt.old <- data.table(read.table(raw_tab_file,
     header=TRUE,
     strip.white=TRUE, stringsAsFactors=FALSE ))
 str(rdt.old)
+describe(rdt.old$n_days_fb)
 rdf <- merge(rdf,rdt.old[,.(id,n_days_fb)],all.x=TRUE)
+# New updated 8 centre file
+raw_tab_file <- "../data/_data_in/8 ICUs 20160309 cumul_FB.txt"
+rdt.old <- data.table(read.table(raw_tab_file,
+    sep = "\t", quote="\"",
+    header=TRUE,
+    strip.white=TRUE, stringsAsFactors=FALSE ))
+str(rdt.old)
+describe(rdt.old$fb_days)
+rdf <- merge(rdf,rdt.old[,.(id,fb_days)],all.x=TRUE)
 nrow(rdf)
-describe(rdf$n_days_fb)
+str(rdf, list.len=200)
+describe(rdf$fb_days)
+rdt <- data.table(rdf)
+# we have 24 patients where fluid balance is reported over zero days - should drop
+describe(rdt$n_days_fb)
+describe(rdt$fb_days)
+head(rdt[n_days_fb!=fb_days,.(id, n_days_fb, fb_days)])
+head(rdt[fb_days==0,.(id, n_days_fb, fb_days)])
+
+
 
 #  =====================
 #  = Generic functions =

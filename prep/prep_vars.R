@@ -12,6 +12,7 @@ wdt[, sepsis.site := ifelse(sepsis.site %in% c(
 						"Genito-urinary"
 						), sepsis.site, "Other")]
 
+wdt[,sepsis.site:=relevel(factor(sepsis.site), "Other")]
 table(wdt$sepsis.site)
 
 # Patient vars

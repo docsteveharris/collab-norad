@@ -196,10 +196,22 @@ stem(wdt$fb.cum)
 # NOTE: 2015-04-08 - [ ] missing from 8 ICU data
 # Total cumulative fluid balance
 # 1--4 days monitored
+# we have 24 patients where fluid balance is reported over zero days - should replace with old def
 describe(rdt$n_days_fb)
+describe(rdt$fb_days)
+head(rdt[n_days_fb!=fb_days,.(id, n_days_fb, fb_days)])
+head(rdt[fb_days==0,.(id, n_days_fb, fb_days)])
+
+wdt[,n_days_fb:=NULL]
+wdt[,fb_days:=NULL]
+wdt[,fb.days:=NULL]
 wdt <- wdt[rdt[,.(n_days_fb),keyby=id]]
-setnames(wdt,'n_days_fb','fb.days')
+wdt <- wdt[rdt[,.(fb_days),keyby=id]]
+wdt[,fb.days:=as.integer(max(n_days_fb,fb_days,na.rm=TRUE)),by=id]
+head(wdt[n_days_fb!=fb_days,.(id, fb.days, n_days_fb, fb_days)],100)
+wdt[,fb_days:=ifelse(fb_days==0,NA,fb_days)]
 describe(wdt$fb.days)
+
 
 wdt[,fb.mean := fb.cum / fb.days]
 stem(wdt$fb.mean)
@@ -293,6 +305,7 @@ setnames(wdt,'itu_los','los.itu')
 table(wdt$los.itu)
 wdt[,los.itu := ifelse(los.itu=="<1", 0, as.numeric(los.itu))]
 describe(wdt$los.itu)
+str(wdt$los.itu)
 
 # ITU discharge
 wdt[, .(icu.adm.dt,los.itu,itu.dc.dt=icu.adm.dt+los.itu)]
