@@ -34,30 +34,69 @@
 # 2014-11-29
 # - adding further vars
 
+rm(list=ls(all=TRUE))
 
-#  =====================
-#  = Load dependencies =
-#  =====================
-# Install latest version
-# install.packages('data.table', type='source') (use source version to get latest)
-# update.packages(type='source')
+"usage: 
+    table1 [options]
+
+options:
+    --help              help  (print this)
+    -d, --describe      describe this model
+    --subgrp=SUBGRP     All patients or subgrp [default: all]" -> doc
+
+require(docopt) # load the docopt library to parse
+# opts <- docopt(doc, "--subgrp=icu_recommend --nsims=5") # for debugging
+opts <- docopt(doc)
+if (opts$d) {
+    write("
+********************************************************
+Generate a standardised Table 1 with options by subgroup
+********************************************************
+Subgroups 
+- all
+- grp.ne24
+- grp.morelli
+", stdout())
+    quit()
+}
+
+library(Hmisc)
 library(data.table) # NB setnames and setorder only exist in >v1.9
 library(reshape2)
 library(XLConnect)
+require(assertthat)
+require(gmodels)
 
-rm(list=ls(all=TRUE))
-
+subgrp <- opts$subgrp         # define subgrp
 # Load data and prepare vars
 source("../prep/strobe.R")
 source("../prep/prep_vars.R")
-table(wdt$hosp)
 
-wdt$sample_N <- 1
 
+if (subgrp=="all") {
+	wdt$sample_N <- 1
+    assert_that(nrow(wdt)==727)
+    grp_suffix <- "_all"
+} else if (subgrp=="grp.ne24") {
+	wdt$sample_N <- 1
+    wdt <- wdt[get(opts$subgrp)==1]
+    assert_that(nrow(wdt)==567)
+    grp_suffix <- "_ne24"
+} else if (subgrp=="grp.morelli") {
+	wdt$sample_N <- 1
+    wdt <- wdt[get(opts$subgrp)==1]
+    assert_that(nrow(wdt)==270)
+    grp_suffix <- "_morelli"
+} else {
+    stop(paste("ERROR?:", subgrp, "not one of 'all', 'grp.ne24', or 'grp.morelli'"))
+}
 
 # Define file name
-table1.data <- '../write/tables/table1_all.RData'
-table1.file <- '../write/tables/table1_all.xlsx'
+table1.data <- paste0( '../write/tables/table1', grp_suffix, '.RData')
+table1.file <- paste0( '../write/tables/table1', grp_suffix, '.xlsx')
+
+print(table1.file)
+print(nrow(wdt))
 
 # Define strata
 # NOTE: 2014-10-13 - analyse all
@@ -96,8 +135,8 @@ vars <- c(
 	'fin.24', 'fb.24',
 	'fb.mean',
 	'los.ne',
-	'mort.itu',
-	'mort.hosp'
+	'mort.itu'
+	# 'mort.hosp' # dropped because less than unit mortality!?
 	)
 
 vars <- c('sample_N', vars) # prepend all obs for total counts
@@ -120,8 +159,8 @@ vars.factor <- c(
 	'pressor.other.24',
 	'rx.roids',
 	'rrt.24',
-	'mort.itu',
-	'mort.hosp'
+	'mort.itu'
+	# 'mort.hosp'
 	)
 
 # Define distributions
