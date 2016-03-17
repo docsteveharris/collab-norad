@@ -7,8 +7,6 @@ output: md_document
 
 ```{r setup, include=FALSE, echo=FALSE}
 rm(list=ls(all=TRUE))
-source(file="../prep/load.R")
-load(file='../data/cleaned.Rdata')
 source(file="../prep/strobe.R")
 source(file="../prep/prep_vars.R")
 source(file="../share/functions4rmd.R")
@@ -18,71 +16,74 @@ source(file="../share/functions4rmd.R")
 
 # Introduction
 
-Justification
-
-- it is well known that high heart rate is associated with poor outcome 
-- Morelli recently selected patients with high heart rate and randomised them to treatment with esmolol with dramatic effects,  specifically: 
-	+ a reduction in noradrenaline dose
-	+ a reduction in mortality
-- also the question that 
-	- clearly noradrenaline may be a proxy for underlying disease severity, but is it also possible that high noradrenaline is _harmful_ esp. certain subgroups i.e. those with tachycardia
-- what are the deteriminants of noradrenaline dose at 24h
-	- and after adjusting for these then what is the effect of noradrenaline on outcome
-
-- 2ndry qn: apart from v high control group mortality which raised the question of practise and case mix differences 
-
-Qns.
-
-1. With reference to Morelli, if we capture a similar population then is the mortality observed similar to the control group - with particular relevance to patients with high heart rates
-2. How much does treatment vary between sites wrt norad, fluid, and map?
-3. What determines mortality at 24h, and specifically
-	- what is the site effect
-	- what is the effect of high heart rate
-3. How much does mortality vary between sites?
-
 # Methods
 
 ## Patients
 
-We recruited one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were locally diagnosed and treated for infection, required a vasopressor infusion after 24 hours of stabilisation in the critical care unit, and had not received beta-blocker therapy during the same time period.
+- [ ] TODO(2016-03-17): concept of sequentially stricter subgroups
 
-<!-- Morelli criteria to compare in table
-
-- age < 18
-- beta-blockers prior to randomisation
-- cardiac index < 2.2 with high LAP
-- significant valvular heart disease
- -->
+We requested data on one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were treated for presumed infection, and required noradrenaline infusion for one hour or more, and survived for a minimum of 24 hours (else no treatment vars). We defined a subgroup of patients with resistant septic shock where the noradrenaline infusion was not weaned within 24 hours, and a tachycardic septic shock subgroup that mimicked the control group in the study by Morelli et al where the heart rate had to be greater than 95 beats/minute at 24 hours, and the patients had not received beta-blockers therapy.
 
 ## Definitions
 
 - need to describe vasopressor and sedation scores
-- classify high vs low map target
+- classify high vs low map target at 24 hours
 	- use 75 as per Asfar
 - classify high vs low heart rate groups: split at [0,95) and [95,] as per Morelli
+- define patient level predictors
+	+ age
+	+ sex
+	+ weight
+	+ sepsis site
+	+ initial SOFA score (at hour 1)
+- define treatment variables
+	+ noradrenaline dose (weight adjusted) at 24h
+	+ mean arterial pressure at 24h (treatment variable)
+	+ fluid balance in 1st 24h
+	+ mechanical ventilation
+	+ renal replacement therapy
+	+ other vasopressors (yes/no)
+	+ other inotropes (yes/no) ? or just combine with above and calculate by subtracting from VADI
+	+ sedatation dose
 
 ## Research questions
 
-- effect of map (target), heart rate, and norad dose on outcome
-	+ hypothesis 1: high vs low heart rates respond differently to norad?
-- inter-site variablity in treatment approaches after controlling for hour 1 status
-- inter-site variability in mortality after controlling for hour 1 status and ...
-	+ message: mortality is high but there is significant variability between sites  even after controlling for obvious stuff
+1. Report the proportion of patients meeting the criteria for resistant septic shock at 24hrs, and build a model to predict this using patient level characteristics but report ICC variant
+2. Ditto for tachycardic septic shock
+3. Now report treatment variation for noradrenaline using ICC (and other treatment variables)
+	- table with overall (pooled) median and group level min/max median and ICC from model
+4. Finally report mortality outcomes after adjusting for patient level variation
+5. Given differences in noradrenaline use then look at how that interacts with patient and treatment outcomes
 
 ## Statistical analaysis	
 
+We built multi-level models with random effects for the sites to quantify the effect of the patient level factors and treatment variables. Where the outcomes were continuous we used linear models (fluid balance, mean arterial pressure) with a log transform where the data were skewed (noradrenaline dose). Where the outcomes were binary (resistant septic shock, resistant septic shock with tachycardia, and mortality), we used generalised linear model with a logistic link. Since we were more interested in the relative importance of the predictors rather than their absolute effect, we standardised each after suitable transformation by subtracting the mean and dividing by twice the standard deviation to permit direct comparison of the relative importance of each predictor (Gelman).
+
+We used the intraclass correlation (ICC) to summarise the proportion of the variation in each outcome that is derived via group membership (the random effects term). Low values imply that most variation is explained at the patient level, and high values imply that most variation is explained at the Intensive Care Unit level.
+
+- [ ] TODO(2016-03-17): ICC for binary outcomes
+	- [ ] add comment about how ICC works for such models
+- [ ] TODO(2016-03-17): bootstrap CI for ICC?
+
+Where we specifically investigated the effect of noradrenaline dose on mortality, we allowed its effect to vary between sites in a random intercept/random slope model, and included interactions between noradrenaline and high and low mean arterial pressures, high and low heart rates.
 
 
 # Results
 ```{r strobe, include=FALSE, echo=FALSE}
 
-los.itu.0    <- ff.np(exclude.los.itu.0)
-rx.betablock <- ff.np(exclude.rx.betablock)
-low.ne.24    <- ff.np(exclude.ne.24)
-hosp.n       <- ff.mediqr(N, data=tdt[,.N,by=hosp])
+(los.itu.0    <- ff.np(data=wdt.original, exclude.los.itu.0))
+(include    <- ff.np(data=wdt.original, include))
+(grp.ne24    <- ff.np(data=wdt, grp.ne24))
+(rx.betablock <- ff.np(data=wdt.original, exclude.rx.betablock))
+(grp.morelli    <- ff.np(data=wdt, grp.morelli))
+(hosp.n       <- ff.mediqr(N, data=wdt[,.N,by=hosp]))
 ```
 
-We screened `r nrow(wdt[include==1])` consecutive admissions with septic shock from `r length(unique(wdt$hosp))` hospitals in 4 European countries. We excluded `r los.itu.0$n[2]` patients (`r los.itu.0$p[2]`) who were discharged within 24 hours (one survivor, one non-surivor); `r rx.betablock$n[2]` patients (`r rx.betablock$p[2]`) who received beta-blocker therapy during the first 24 hours; and, `r low.ne.24$n[2]` patients (`r low.ne.24$p[2]`) where noradrenaline infusions had been weaned by 24 hours. The final cohort included `r nrow(tdt)` patients with each hospital contributing a median of `r hosp.n$q50` patients (IQR `r hosp.n$iqr`).
+We reviewed
+
+We screened `r nrow(wdt.original)` consecutive admissions with septic shock from `r length(unique(wdt$hosp))` hospitals in 4 European countries. We excluded 9 patients (6 missing data on their initial noradrenaline requirement, and three with a length of stay less than 24 hours). Each hospital contributing a median of `r hosp.n$q50` patients (IQR `r hosp.n$iqr`).
+
+The subgroup of patients with resistant septic shock included `r grp.ne24$n[2]` (`r grp.ne24$n[2]`) patients who had not been weaned from noradrenaline within 24 hours. Within this, the tachycardic-shocked subgroup included `r grp.morelli$n[2]` (`r grp.morelli$p[2]`) patients with a heart rate greater than 95 beats/minute without preceding beta-blocker treatment. 
 
 ## Patient characteristics
 

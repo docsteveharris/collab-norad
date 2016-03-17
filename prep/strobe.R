@@ -1,7 +1,8 @@
 # For debugging and interactive coding
 # rm(list=ls(all=TRUE))
-# source(file="../prep/load.R")
-# load(file='../data/cleaned.Rdata')
+source(file="../prep/load.R")
+source(file="../prep/load.R")
+load(file='../data/cleaned.Rdata')
 
 #  =======================================
 #  = Generate working data and subgroups =
@@ -19,13 +20,25 @@ describe(wdt$los.ne)
 # - on Norad
 # - adult
 # - in ICU for > 24hrs 
+
+# Define inclusion
+nrow(wdt)
 nrow(wdt[los.itu==0])
 nrow(wdt[los.ne==0]) # but lot's of missingness
-wdt[, include := ifelse(age>=18 & ne.1 > 0 &
-	los.itu > 0 & (los.ne != 0 | is.na(los.ne))  , 1, 0) ]
+wdt[, exclude.los.itu.0 := ifelse(los.itu==0 | los.ne==0,1,0)]
+wdt[, exclude.los.itu.0 := ifelse(is.na(exclude.los.itu.0),0,exclude.los.itu.0)]
+nrow(wdt[exclude.los.itu.0==1])
+nrow(wdt[ne.1==0])
+nrow(wdt[age<18])
+
+nrow(wdt[is.na(age)])
+nrow(wdt[is.na(ne.1)])
+wdt[, include := ifelse(age>=18 & ne.1 > 0 & los.itu > 0 & exclude.los.itu.0 == 0 , 1, 0) ]
+describe(wdt$include)
 wdt[, include := ifelse(is.na(include),0,include)]
 describe(wdt$include)
 
+# Define post inclusion exclusions
 wdt[, exclude.rx.betablock := ifelse(rx.betablock==FALSE | is.na(rx.betablock),0,1)]
 wdt[, exclude.ne.24 := ifelse(ne.24 > 0 & !is.na(ne.24),0,1)]
 wdt[, exclude.hr.24 := ifelse(hr.24 >= 95 & !is.na(hr.24),0,1)]
@@ -37,10 +50,11 @@ nrow(wdt[exclude.ne.24==1])
 nrow(wdt[exclude.hr.24==1])
 
 wdt[, grp.all := 1]
-wdt[, grp.ne24 := ifelse(include==1 & exclude.rx.betablock == 0 & exclude.ne.24 == 0, 1, 0)]
-wdt[, grp.hr24 := ifelse(include==1 & exclude.rx.betablock == 0 & exclude.ne.24 == 0 & exclude.hr.24 == 0, 1, 0)]
+wdt[, grp.ne24 := ifelse(include==1 & exclude.ne.24 == 0, 1, 0)]
+wdt[, grp.morelli := ifelse(include==1 & exclude.rx.betablock == 0 & exclude.ne.24 == 0 & exclude.hr.24 == 0, 1, 0)]
 
 # Prepare STROBE data
+wdt.original <- wdt
 wdt <- wdt[include==1]
 
 # Encode the hospitals
