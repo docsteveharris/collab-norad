@@ -322,10 +322,17 @@ describe(wdt$ne.start.dt)
 wdt[, .(icu.adm.dt,los.itu,itu.dc.dt, ne.start.dt, los.ne, los.post.itu)]
 
 
-# Unit acquired shock
+# Unit acquired shock (upgrade to be within 48h of admission)
 describe(rdt$ne_less24h)
-rdt[,itu.shock := ifelse(ne_less24h==1, 1, 0)]
+wdt[, los.ne.pre := as.integer(ne.start.dt-icu.adm.dt)]
+wdt[, los.ne.pre := ifelse(los.ne.pre < 0 | los.ne.pre > 60 , NA, los.ne.pre)]
+describe(wdt$los.ne.pre)
+
+rdt[,itu.shock := ifelse(ne_less24h==0, 1, 0)]
 wdt <- wdt[rdt[,.(itu.shock),keyby=id]]
+describe(wdt$itu.shock)
+with(wdt, table(los.ne.pre, itu.shock, useNA="always"))
+wdt[, itu.shock := ifelse(!is.na(los.ne.pre) & los.ne.pre > 2, 1, itu.shock)]
 describe(wdt$itu.shock)
 
 

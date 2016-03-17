@@ -46,15 +46,10 @@ library(reshape2)
 library(XLConnect)
 
 rm(list=ls(all=TRUE))
-load(file='../data/cleaned.RData')
 
-# Generate working data
-source("../prep/prep_vars.R")
+# Load data and prepare vars
 source("../prep/strobe.R")
-str(wdt)
-# this saves the data to tdt so rename
-wdt <- tdt
-str(wdt)
+source("../prep/prep_vars.R")
 table(wdt$hosp)
 
 wdt$sample_N <- 1
