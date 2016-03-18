@@ -25,3 +25,4 @@ source(file="../prep/strobe.R")
 source(file="../prep/prep_vars.R")
 source(file="../share/functions4paper.R")
 
+# Model resitant septic shock

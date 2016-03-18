@@ -1,7 +1,6 @@
 # For debugging and interactive coding
 # rm(list=ls(all=TRUE))
-source(file="../prep/load.R")
-source(file="../prep/load.R")
+# source(file="../prep/load.R")
 load(file='../data/cleaned.Rdata')
 
 #  =======================================
@@ -19,13 +18,18 @@ describe(wdt$los.ne)
 # Basic inclusion criteria
 # - on Norad
 # - adult
-# - in ICU for > 24hrs 
+# - in ICU for > 24hrs post-onset of septic shock 
 
 # Define inclusion
 nrow(wdt)
 nrow(wdt[los.itu==0])
 nrow(wdt[los.ne==0]) # but lot's of missingness
-wdt[, exclude.los.itu.0 := ifelse(los.itu==0 | los.ne==0,1,0)]
+
+# Additional logic that makes defines patient's as dead within 24h if missing vars
+wdt[, dead.by.miss := ifelse(mort.itu==1 & (los.ne <= 2 | is.na(los.ne))  & is.na(hr.24) & is.na(bps.24), 1, 0)]
+table(wdt$dead.by.miss)
+
+wdt[, exclude.los.itu.0 := ifelse(los.itu==0 | los.ne==0 | dead.by.miss == 1,1,0)]
 wdt[, exclude.los.itu.0 := ifelse(is.na(exclude.los.itu.0),0,exclude.los.itu.0)]
 nrow(wdt[exclude.los.itu.0==1])
 nrow(wdt[ne.1==0])

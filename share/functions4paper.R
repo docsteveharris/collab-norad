@@ -1,4 +1,4 @@
-
+# Load functions
 # intra-class correlation
 ICC <- function(m) {
     require(lme4)
@@ -26,18 +26,32 @@ coef.plot <- function(model=m) {
     require(ggplot2)
 
     # Test the model class
-    if(class(m)=="lm") {
+    if(class(m)[1]=="lm") {
         m.coef <- summary(m)$coefficients
         m.coef <- data.frame(summary(m)$coefficients)
         colnames(m.coef)[1] <- "est"
         colnames(m.coef)[2] <- "se"
         colnames(m.coef)[3] <- "t"
         colnames(m.coef)[4] <- "p"
-    } else if (class(m)=="lmerMod") {
+    } else if (class(m)[1]=="lmerMod") {
         m.coef <- data.frame(summary(m)$coefficients)
         colnames(m.coef)[1] <- "est"
         colnames(m.coef)[2] <- "se"
         colnames(m.coef)[3] <- "t"
+    } else if (class(m)[1]=="glm") {
+        # If converting then will need to know link function
+        m.coef <- data.frame(summary(m)$coefficients)
+        colnames(m.coef)[1] <- "est"
+        colnames(m.coef)[2] <- "se"
+        colnames(m.coef)[3] <- "t"
+        colnames(m.coef)[4] <- "p"
+    } else if (class(m)[1]=="glmerMod") {
+        # If converting then will need to know link function
+        m.coef <- data.frame(summary(m)$coefficients)
+        colnames(m.coef)[1] <- "est"
+        colnames(m.coef)[2] <- "se"
+        colnames(m.coef)[3] <- "z"
+        colnames(m.coef)[4] <- "p"
     } else {
         warning("Unknown model class: exiting function call")
         return(NULL)
