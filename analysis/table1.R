@@ -54,8 +54,8 @@ Generate a standardised Table 1 with options by subgroup
 ********************************************************
 Subgroups 
 - all
-- grp.ne24
-- grp.morelli
+- ne24
+- morelli
 ", stdout())
     quit()
 }
@@ -69,22 +69,20 @@ require(gmodels)
 
 subgrp <- opts$subgrp         # define subgrp
 # Load data and prepare vars
-source("../prep/strobe.R")
-source("../prep/prep_vars.R")
-
+load("../data/strobe.Rdata")
 
 if (subgrp=="all") {
 	wdt$sample_N <- 1
-    assert_that(nrow(wdt)==727)
+    assert_that(nrow(wdt)==691)
     grp_suffix <- "_all"
-} else if (subgrp=="grp.ne24") {
+} else if (subgrp=="ne24") {
 	wdt$sample_N <- 1
-    wdt <- wdt[get(opts$subgrp)==1]
+    wdt <- wdt[get(paste0("grp.", opts$subgrp))==1]
     assert_that(nrow(wdt)==567)
     grp_suffix <- "_ne24"
-} else if (subgrp=="grp.morelli") {
+} else if (subgrp=="morelli") {
 	wdt$sample_N <- 1
-    wdt <- wdt[get(opts$subgrp)==1]
+    wdt <- wdt[get(paste0("grp.", opts$subgrp))==1]
     assert_that(nrow(wdt)==270)
     grp_suffix <- "_morelli"
 } else {

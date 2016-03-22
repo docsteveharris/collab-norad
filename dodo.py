@@ -15,8 +15,6 @@ from __future__ import print_function
 def task_clean_data():
 	"""Loads and cleans data"""
 
-	print("Cleaning data")
-
 	return {
         # "basename": "clean",
         "file_dep": ["prep/clean.R"],
@@ -43,13 +41,24 @@ def task_strobe():
         "actions": ["cd prep && Rscript strobe.R | tee ../logs/strobe.Rout"]
         }
 
-# def task_table1_all():
-# 	"""Makes table 1"""
+def task_table1():
+	"""Makes table 1 (for all post STROBE)"""
 
-# 	return {
-#         "basename": "table1",
-# 		"file_dep": ["data/cleaned.RData", "analysis/table1_all.R"],
-# 		"targets": ["logs/table1_all.Rout", "outputs/tables/table1_all.xlsx"],
-#         "actions": ["R CMD BATCH analysis/table1_all.R ../logs/table1_all.Rout"]
-# 	}
+	return {
+        "uptodate": [False],
+        "basename": "table1",
+		"file_dep": ["data/strobe.RData", "analysis/table1.R"],
+		"targets": ["logs/table1_all.Rout",
+                    "write/tables/table1_all.xlsx",
+                    "write/tables/table1_ne24.xlsx",
+                    "write/tables/table1_morelli.xlsx"
+                    ],
+        "actions": [
+            "cd analysis && Rscript table1.R --subgrp=all | tee ../logs/table1_all.Rout",
+            "cd analysis && Rscript table1.R --subgrp=ne24 | tee ../logs/table1_ne24.Rout",
+            "cd analysis && Rscript table1.R --subgrp=morelli | tee ../logs/table1_morelli.Rout"
+            ]
+	}
+
+
 
