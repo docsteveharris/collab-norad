@@ -46,6 +46,8 @@ Potential variables
 
 rx <- opts$rx         # define rx variable of interest
 
+library(Hmisc)
+library(data.table)
 library(dsbc)
 library(arm)
 library(ggplot2)
@@ -54,8 +56,7 @@ library(assertthat)
 library(XLConnect)
 
 # rx <- "ne.24" # for debugging
-source(file="../prep/strobe.R")
-source(file="../prep/prep_vars.R")
+load("../data/strobe.Rdata")
 source(file="../share/functions4paper.R")
 
 assert_that(nrow(wdt)==691)

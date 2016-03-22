@@ -45,10 +45,13 @@ def task_table1():
 	"""Makes table 1 (for all post STROBE)"""
 
 	return {
-        "uptodate": [False],
+        # "uptodate": [False],
         "basename": "table1",
 		"file_dep": ["data/strobe.RData", "analysis/table1.R"],
-		"targets": ["logs/table1_all.Rout",
+		"targets": [
+                    "logs/table1_all.Rout",
+                    "logs/table1_ne24.Rout",
+                    "logs/table1_morelli.Rout",
                     "write/tables/table1_all.xlsx",
                     "write/tables/table1_ne24.xlsx",
                     "write/tables/table1_morelli.xlsx"
@@ -61,4 +64,28 @@ def task_table1():
 	}
 
 
+def task_model_rx():
+    """Builds treatment variable models"""
+
+    return {
+        "uptodate": [False],
+        # "basename": "model_rx",
+        "file_dep": ["data/strobe.RData", "analysis/model_rx.R"],
+        "targets": [
+                    "logs/model_rx_ne.24.Rout",
+                    "logs/model_rx_map.24.Rout",
+                    "logs/model_rx_fb.24.Rout",
+                    "write/figures/model_rx_ne.24.eps",
+                    "write/figures/model_rx_map.24.eps",
+                    "write/figures/model_rx_fb.24.eps"
+                    "write/tables/model_rx_ne.24.xlsx",
+                    "write/tables/model_rx_map.24.xlsx",
+                    "write/tables/model_rx_fb.24.xlsx"
+                    ],
+        "actions": [
+            "cd analysis && Rscript model_rx.R --rx=ne.24 | tee ../logs/model_rx_ne.24.Rout",
+            "cd analysis && Rscript model_rx.R --rx=map.24 | tee ../logs/model_rx_map.24.Rout",
+            "cd analysis && Rscript model_rx.R --rx=fb.24 | tee ../logs/table1_fb.24.Rout"
+            ]
+    }
 
