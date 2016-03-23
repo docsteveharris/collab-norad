@@ -29,7 +29,7 @@ options:
     --rx=TREATMENT      specify treatment [default: ne.24]" -> doc
 
 require(docopt) # load the docopt library to parse
-# opts <- docopt(doc, "--subgrp=icu_recommend --nsims=5") # for debugging
+opts <- docopt(doc, "--rx=ne.24") # for debugging
 opts <- docopt(doc)
 if (opts$d) {
     write("
@@ -46,14 +46,14 @@ Potential variables
 
 rx <- opts$rx         # define rx variable of interest
 
-library(Hmisc)
-library(data.table)
-library(dsbc)
-library(arm)
-library(ggplot2)
-library(reshape2)
-library(assertthat)
-library(XLConnect)
+require(Hmisc)
+require(data.table)
+require(dsbc)
+require(arm)
+require(ggplot2)
+require(reshape2)
+require(assertthat)
+require(XLConnect)
 
 # rx <- "ne.24" # for debugging
 load("../data/strobe.Rdata")
@@ -63,40 +63,40 @@ assert_that(nrow(wdt)==691)
 
 
 if (rx=="ne.24") {
-	# 	+ noradrenaline dose (weight adjusted) at 24h
-	wdt[, "rx" := get(rx), with=FALSE]
-	wdt[, rx := log(rx)] # log transform for ne
-	# Drop missing and zero values
-	tdt <- wdt[!(rx %in% c(NA, -Inf, +Inf, NaN))]
+    #   + noradrenaline dose (weight adjusted) at 24h
+    wdt[, "rx" := get(rx), with=FALSE]
+    wdt[, rx := log(rx)] # log transform for ne
+    # Drop missing and zero values
+    tdt <- wdt[!(rx %in% c(NA, -Inf, +Inf, NaN))]
     rx_suffix <- "_ne.24"
-	vars.other <- c("rescale(map.24)", "rescale(fb.24)")
-	m.labels.specific <- c(
-		"MAP (at 24 hours)",
-		"Fluid balance (at 24 hours)"
-		)
+    vars.other <- c("rescale(map.24)", "rescale(fb.24)")
+    m.labels.specific <- c(
+        "MAP (at 24 hours)",
+        "Fluid balance (at 24 hours)"
+        )
 } else if (rx=="map.24") {
-	# 	+ mean arterial pressure at 24h (treatment variable)
-	wdt[, "rx" := get(rx), with=FALSE]
-	# Drop missing and zero values
-	tdt <- wdt[!(rx %in% c(NA, -Inf, +Inf, NaN))]
+    #   + mean arterial pressure at 24h (treatment variable)
+    wdt[, "rx" := get(rx), with=FALSE]
+    # Drop missing and zero values
+    tdt <- wdt[!(rx %in% c(NA, -Inf, +Inf, NaN))]
     rx_suffix <- "_map.24"
-	vars.other <- c("rescale(ne.24)", "rescale(fb.24)")
-	m.labels.specific <- c(
-		"Noradrenaline (at 24 hours)",
-		"Fluid balance (at 24 hours)"
-		)
+    vars.other <- c("rescale(ne.24)", "rescale(fb.24)")
+    m.labels.specific <- c(
+        "Noradrenaline (at 24 hours)",
+        "Fluid balance (at 24 hours)"
+        )
 } else if (rx=="fb.24") {
-	# 	+ fluid balance in 1st 24h
-	wdt[, "rx" := get(rx), with=FALSE]
-	wdt[, rx := (rx/1000)] # transform to litres
-	# Drop missing and zero values
-	tdt <- wdt[!(rx %in% c(NA, -Inf, +Inf, NaN))]
+    #   + fluid balance in 1st 24h
+    wdt[, "rx" := get(rx), with=FALSE]
+    wdt[, rx := (rx/1000)] # transform to litres
+    # Drop missing and zero values
+    tdt <- wdt[!(rx %in% c(NA, -Inf, +Inf, NaN))]
     rx_suffix <- "_fb.24"
-	vars.other <- c("rescale(ne.24)", "rescale(map.24)")
-	m.labels.specific <- c(
-		"Noradrenaline (at 24 hours)",
-		"MAP (at 24 hours)"
-		)
+    vars.other <- c("rescale(ne.24)", "rescale(map.24)")
+    m.labels.specific <- c(
+        "Noradrenaline (at 24 hours)",
+        "MAP (at 24 hours)"
+        )
 } else {
     stop(paste("ERROR?:", rx, "not one of 'ne.24' or ''"))
 }
@@ -105,45 +105,58 @@ file.table <- paste0( '../write/tables/model_rx', rx_suffix, '.xlsx')
 file.coefplot <- paste0("../write/figures/model_rx", rx_suffix, ".eps")
 
 m.labels <- c(
-	"Age",
-	"Male",
-	"Weight",
-	"Abdominal sepsis",
-	"Genito-urinary sepsis",
-	"Respiratory sepsis",
-	"SOFA (baseline)",
-	"Lactate (baseline)",
-	"Mechanical ventilation",
-	"Renal replacement therapy",
-	"Sedation score",
-	"Steroid treatment", m.labels.specific)
+    "Age",
+    "Male",
+    "Weight",
+    "Abdominal sepsis",
+    "Genito-urinary sepsis",
+    "Respiratory sepsis",
+    "SOFA (baseline)",
+    "Lactate (baseline)",
+    "Mechanical ventilation",
+    "Renal replacement therapy",
+    "Sedation score",
+    "Steroid treatment", m.labels.specific)
 
 # Describe the dependent variable
 describe(tdt$rx)
 
 # - define patient level predictors
-# 	+ age
-# 	+ sex
-# 	+ weight
-# 	+ sepsis site
-# 	+ initial SOFA score (at hour 1)
+#   + age
+#   + sex
+#   + weight
+#   + sepsis site
+#   + initial SOFA score (at hour 1)
 vars.pt <- c("rescale(age)", "male", "rescale(weight)", "sepsis.site", "rescale(sofa.1)", "rescale(lac.1)")
 
 # - define treatment variables for adjustment
-# 	+ mechanical ventilation
-# 	+ renal replacement therapy
-# 	+ other vasopressors (yes/no)
-# 	+ other inotropes (yes/no) ? or just combine with above and calculate by subtracting from VADI
-# 	+ sedatation dose
+#   + mechanical ventilation
+#   + renal replacement therapy
+#   + other vasopressors (yes/no)
+#   + other inotropes (yes/no) ? or just combine with above and calculate by subtracting from VADI
+#   + sedatation dose
 # vars.rx <- c("mv.24", "rrt.24", "rescale(vadi.24)", "rescale(sedation.24)", "rx.roids")
 warning("**MISSING VADI**")
 vars.rx <- c("mv.24", "rrt.24", "rescale(sedation.24)", "rx.roids")
 
+# Define formula
+# Null formula - centre effect only
+f <- formula(paste("rx ~ (1 | hosp.id)"))
+# Patient level predictors
+f <- formula(paste("rx ~ ", paste(c(vars.pt), collapse="+"), "+ (1 | hosp.id)"))
+# Patient and treatment level predictors
 f <- formula(paste("rx ~ ", paste(c(vars.pt, vars.rx, vars.other), collapse="+"), "+ (1 | hosp.id)"))
-print(f)
 
+# patient and treatment level predictors reduce individual level residual variation
+# hence the ICC appears to improve
+
+print(f)
+# Model
 m <- lmer(f, data=tdt)
 display(m)
+coef.plot(m) 
+ICC(m)
+
 # Prepare table to save
 m.table <- data.table(summary(m)$coefficients, keep.rownames=TRUE)
 colnames(m.table)[2] <- "est"
@@ -169,14 +182,14 @@ wb <- loadWorkbook(file.table, create = TRUE)
 
 sheet1 <- paste0("model", rx_suffix)
 # if (existsSheet(wb, sheet1)) {
-# 	removeSheet(wb, sheet1)
+#   removeSheet(wb, sheet1)
 # }
 createSheet(wb, name = sheet1)
 writeWorksheet(wb, model_parameters, sheet1)
 
 sheet2 <- paste0("raw", rx_suffix)
 # if (existsSheet(wb, sheet2)) {
-# 	removeSheet(wb, sheet2)
+#   removeSheet(wb, sheet2)
 # }
 createSheet(wb, name = sheet2)
 writeWorksheet(wb, m.table, sheet2)
