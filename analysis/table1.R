@@ -130,7 +130,8 @@ vars <- c(
 	'sedation.24',
 	'sofa.1',
 	# 'rx.betablock',
-	'fin.24', 'fb.24',
+	'fin.24',
+	'fb.24',
 	'fb.mean',
 	'los.ne',
 	'mort.itu'
@@ -152,7 +153,7 @@ vars.factor <- c(
 	# 'pmh.betablock',
 	# 'rx.betablock',
 	'itu.shock',
-	'non.sinus.24',
+	'non.sinus.1',
 	'mv.24',
 	'pressor.other.24',
 	'rx.roids',
@@ -162,7 +163,7 @@ vars.factor <- c(
 	)
 
 # Define distributions
-vars.norm 	<- c('age', 'weight', 'hr.24', 'map.24')
+vars.norm 	<- c('age', 'weight', 'hr.1', 'map.1')
 
 # NOTE: 2014-10-12 - you need to have the strata var in the data.table
 if (!vars.strata %in% vars) {
