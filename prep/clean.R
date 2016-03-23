@@ -268,6 +268,8 @@ for (i in 1:length(obs)) {
 
 }
 str(wdt)
+# - [ ] FIXME(2016-03-23): convert co to numeric
+wdt[, co.1 := as.numeric(co.1)]
 
 wdt[, peep.1 := round(as.numeric(peep.1))]
 wdt[, peep.24 := round(as.numeric(peep.24))]
