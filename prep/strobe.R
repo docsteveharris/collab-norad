@@ -86,5 +86,5 @@ setkey(wdt,hosp.id)
 wdt <- wdt[m[,.(hosp.id,hosp.id.sort)]]
 # str(wdt)
 
-source(file="prep_vars.R")
+source(file="../prep/prep_vars.R")
 save(wdt, wdt.original, file='../data/strobe.Rdata')
