@@ -11,7 +11,7 @@ from __future__ import print_function
 #         'targets': ['asdf'],
 #         'verbosity': 2,
 #         }
-        
+
 def task_clean_data():
 	"""Loads and cleans data"""
 
@@ -80,4 +80,23 @@ def task_model_rx():
             "cd analysis && Rscript model_rx.R --rx=ne.24 | tee ../logs/model_rx_ne.24.Rout"
             ]
     }
+
+def task_model_mortality():
+    """Build final mortality model"""
+
+    return {
+        "uptodate": [False],
+        # "basename": "model_mortality",
+        "file_dep": ["data/strobe.RData", "analysis/model_mortality.R"],
+        "targets": [
+                    "logs/model_mortality.Rout",
+                    "write/figures/model_mortality.eps",
+                    "write/tables/model_mortality.xlsx"
+                    ],
+        "actions": [
+            "cd analysis && Rscript model_mortality.R | tee ../logs/model_mortality.Rout"
+            ]
+    }
+
+ 
 
