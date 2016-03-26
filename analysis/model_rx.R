@@ -161,9 +161,15 @@ ICC(m)
 m.table <- data.table(summary(m)$coefficients, keep.rownames=TRUE)
 colnames(m.table)[2] <- "est"
 colnames(m.table)[3] <- "se"
+# - [ ] FIXME(2016-03-26): using normal as approximation of
+#   t-distribution b/c don't know how to get a the degrees of freedom
+#   for the t
 colnames(m.table)[4] <- "t"
 m.table$z <- m.table$est / m.table$se
 m.table$p <- pnorm(abs(m.table$z), lower.tail=FALSE)
+# Calculate confidence intervals 
+m.table$ci95.l <- m.table$est - (qnorm(0.975) * m.table$se)
+m.table$ci95.u <- m.table$est + (qnorm(0.975) * m.table$se)
 
 m.table <- cbind(label=c("Intercept", m.labels), m.table)
 m.table

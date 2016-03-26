@@ -100,8 +100,11 @@ For each of these three treatments we built two-level linear models to compare t
 
 
 ## Predictors of 24 hour treatment variables
+<!-- - [ ] TODO(2016-03-26): re-express the coefficients on a natural scale in the table -->
 
-- [ ] TODO(2016-03-26): model ne.24 only
+We entered each of these treatment variables alongside baseline measurements of severity of illness into a model to predict noradrenaline dose at 24 hours (all estimates on the log scale, see Table and Figure 2). Patients with abdominal sepsis, those with higher baseline SOFA scores or lactate received higher noradrenaline doses. Among the treatment variables measured, patients receiving additional vasopressors during the first 24 hours, and those with a higher fluid balance had higher noradrenaline doses whereas the lower the mean arterial pressure at the same time point the lower the noradrenaline dose. Neither the concurrent use of sedation, mechanical ventilation nor steroids in this time period affected noradrenaline dose. 
+
+Examining how variation in noradrenaline dosing at 24 hours was split between individual patients and ICUs in this multi-level model, we found that a large proportion (ICC 56%) was accounted for by the ICU. 
 
 ## Variation in mortality between sites
 
