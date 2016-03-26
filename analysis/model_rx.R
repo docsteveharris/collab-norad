@@ -116,6 +116,7 @@ m.labels <- c(
     "Mechanical ventilation",
     "Renal replacement therapy",
     "Sedation score",
+    "Additional vasopressors",
     "Steroid treatment", m.labels.specific)
 
 # Describe the dependent variable
@@ -136,8 +137,7 @@ vars.pt <- c("rescale(age)", "male", "rescale(weight)", "sepsis.site", "rescale(
 #   + other inotropes (yes/no) ? or just combine with above and calculate by subtracting from VADI
 #   + sedatation dose
 # vars.rx <- c("mv.24", "rrt.24", "rescale(vadi.24)", "rescale(sedation.24)", "rx.roids")
-warning("**MISSING VADI**")
-vars.rx <- c("mv.24", "rrt.24", "rescale(sedation.24)", "rx.roids")
+vars.rx <- c("mv.24", "rrt.24", "rescale(sedation.24)", "vadi.other.24.logical", "rx.roids")
 
 # Define formula
 # Null formula - centre effect only

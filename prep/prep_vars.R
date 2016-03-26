@@ -25,6 +25,11 @@ wdt[, sofa.1.cvs := 2 + cut(ne.1, c(0,0.1,10), labels=FALSE, right=FALSE)]
 describe(wdt$sofa.1.cvs)
 wdt[, sofa.1.nocvs := sofa.1 - sofa.1.cvs]
 
+wdt[, vadi.other.24 := 
+        ifelse(ne.24 > 0.3, vadi.24 - 3,
+        ifelse(ne.24 > 0.1, vadi.24 - 2,
+        ifelse(ne.24 > 0.0, vadi.24 - 1, vadi.24)))]
+wdt[, vadi.other.24.logical := ifelse(vadi.other.24 > 0, 1, 0)]
 
 #  ========================================================
 #  = define low/high blood pressure and heart rate groups =
