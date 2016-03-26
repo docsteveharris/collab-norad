@@ -101,10 +101,7 @@ For each of these three treatments we built two-level linear models to compare t
 
 ## Predictors of 24 hour treatment variables
 
-Discuss model output for 
-- ne.24
-- fb.24
-- map.24
+- [ ] TODO(2016-03-26): model ne.24 only
 
 ## Variation in mortality between sites
 

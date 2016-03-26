@@ -73,19 +73,11 @@ def task_model_rx():
         "file_dep": ["data/strobe.RData", "analysis/model_rx.R"],
         "targets": [
                     "logs/model_rx_ne.24.Rout",
-                    "logs/model_rx_map.24.Rout",
-                    "logs/model_rx_fb.24.Rout",
                     "write/figures/model_rx_ne.24.eps",
-                    "write/figures/model_rx_map.24.eps",
-                    "write/figures/model_rx_fb.24.eps"
-                    "write/tables/model_rx_ne.24.xlsx",
-                    "write/tables/model_rx_map.24.xlsx",
-                    "write/tables/model_rx_fb.24.xlsx"
+                    "write/tables/model_rx_ne.24.xlsx"
                     ],
         "actions": [
-            "cd analysis && Rscript model_rx.R --rx=ne.24 | tee ../logs/model_rx_ne.24.Rout",
-            "cd analysis && Rscript model_rx.R --rx=map.24 | tee ../logs/model_rx_map.24.Rout",
-            "cd analysis && Rscript model_rx.R --rx=fb.24 | tee ../logs/table1_fb.24.Rout"
+            "cd analysis && Rscript model_rx.R --rx=ne.24 | tee ../logs/model_rx_ne.24.Rout"
             ]
     }
 
