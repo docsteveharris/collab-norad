@@ -82,6 +82,7 @@ tdt <- na.omit(
                hosp.id.sort,
             sedation.24.logical = ifelse(sedation.24 > 0, 1, 0)
             )])
+t1.trend("sedation.24.logical", "hosp.id.sort", data=tdt, var.cont=FALSE)
 p <- ggMMplot(tdt$hosp.id.sort, !tdt$sedation.24.logical, xlab="Intensive Care Unit", ylab="Sedation")
 p
 ggsave(p, file="../write/figures/process_sedation.pdf", width=3, height=3, scale=2)
@@ -102,6 +103,7 @@ tdt <- na.omit(
                     ifelse(ne.24 > 0.1, vadi.24 - 2,
                     ifelse(ne.24 > 0.0, vadi.24 - 1, vadi.24))))])
 tdt[, vadi.other.24.logical := ifelse(vadi.other.24 > 0, 1, 0)]
+t1.trend("vadi.other.24.logical", "hosp.id.sort", data=tdt, var.cont=FALSE)
 p <- ggMMplot(tdt$hosp.id.sort, tdt$vadi.other.24.logical, xlab="Intensive Care Unit", ylab="Other vasopressors/inotropes")
 p
 ggsave(p, file="../write/figures/process_vadi.pdf", width=3, height=3, scale=2)
@@ -113,6 +115,7 @@ tdt <- na.omit(
                 hosp.id.sort,
                 rx.roids.logical = ifelse(rx.roids==TRUE, 1, 0)
             )])
+t1.trend("rx.roids.logical", "hosp.id.sort", data=tdt, var.cont=FALSE)
 p <- ggMMplot(tdt$hosp.id.sort, tdt$rx.roids.logical, xlab="Intensive Care Unit", ylab="Corticosteroids")
 p
 ggsave(p, file="../write/figures/process_roids.pdf", width=3, height=3, scale=2)
@@ -124,6 +127,7 @@ tdt <- na.omit(
                 hosp.id.sort,
                 mv.24
             )])
+t1.trend("mv.24", "hosp.id.sort", data=tdt, var.cont=FALSE)
 p <- ggMMplot(tdt$hosp.id.sort, !tdt$mv.24, xlab="Intensive Care Unit", ylab="Mechanical ventilation")
 p
 ggsave(p, file="../write/figures/process_mv.pdf", width=3, height=3, scale=2)

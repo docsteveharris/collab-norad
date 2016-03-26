@@ -10,6 +10,7 @@ rm(list=ls(all=TRUE))
 source(file="../prep/strobe.R")
 source(file="../prep/prep_vars.R")
 source(file="../share/functions4rmd.R")
+source(file="../share/functions4paper.R")
 ```
 
 # Abstract
@@ -30,7 +31,7 @@ We abstracted patient and treatment level variables at 1 and 24 hours after the 
 
 ## Research questions
 
-We sought the proportion of ICU patients with septic shock in whom shock persisted at 24 hours, and the subgroup who were also tachycardic (heart rate greater than 95/minute). Persitent shock at 24 hours depends, in this population, on an ongoing requirement for noradrenaline. This in turn depends on the target blood pressure, the sedation used, concurrent inotrope and vasopressor support, steroid use, the approach to fluid management, and additional organ support. We therefore built models of the noradrenaline dose at 24 hours including these treatment variables as well as patient characteristics at baseline (age, sex, weight, source of sepsis, initial SOFA score, and initial lactate). Finally, we evaluated the relationship between noradrenaline dose at 24 hours and ICU mortality, and specifically sought to define whether the relationship was similar for subgroups with high and low heart rates, and high and low mean arterial pressures.
+We sought the proportion of ICU patients with septic shock in whom shock persisted at 24 hours, and the subgroup who were also tachycardic (heart rate greater than 95/minute). Persistent shock at 24 hours depends, in this population, on an ongoing requirement for noradrenaline. This in turn depends on the target blood pressure, the sedation used, concurrent inotrope and vasopressor support, steroid use, the approach to fluid management, and additional organ support. We therefore built models of the noradrenaline dose at 24 hours including these treatment variables as well as patient characteristics at baseline (age, sex, weight, source of sepsis, initial SOFA score, and initial lactate). Finally, we evaluated the relationship between noradrenaline dose at 24 hours and ICU mortality, and specifically sought to define whether the relationship was similar for subgroups with high and low heart rates, and high and low mean arterial pressures.
 
 ## Statistical analaysis	
 
@@ -69,30 +70,31 @@ The subgroup of patients with resistant septic shock comprised `r grp.ne24$n[2]`
 (lac24gt2 <- ff.np(var=lac24gt2, data=wdt[,.(lac24gt2=ifelse(lac.24>2 & !is.na(lac.24),1,0))], dp=0)) 
 ```
 <!-- see Table 1 -->
-<!-- - [ ] TODO(2016-03-23): revise numbers from Table 1 -->
 
-Septic shock occurred within 48 hours of admission for 460 (80%) of patient. Pneumonia was the commonest cause (292 patients, 42%). Patient variables at 24 hours following onset of septic shock are reported in Table 1. The median SOFA score was 10 (IQR 7 to 12), and the lactate at the same time was `r lac24$q50` mmol/l (IQR `r lac24$iqr`) with `r lac24gt2$n[2]` (`r lac24gt2$p[2]`) patients have a lactate greater than 2 mmol/l. The majority of patients (556, 77%) were mechanically ventilated, and 178 (25%) had already started renal replacement therapy (RRT). The overall ICU mortality was 38% (227 deaths). For the subgroups with resistant shock, and tachycardic-shock the ICU mortalities were 40% (131 deaths), and 49% (131 deaths respectively).
+Septic shock occurred within 48 hours of admission for 460 (80%) of patient. Pneumonia was the commonest cause (292 patients, 42%). Patient variables at 24 hours following onset of septic shock are reported in Table 1. The median SOFA score was 10 (IQR 7 to 12), and the lactate at the same time was `r lac24$q50` mmol/l (IQR `r lac24$iqr`) with `r lac24gt2$n[2]` (`r lac24gt2$p[2]`) patients have a lactate greater than 2 mmol/l. The majority of patients (556, 77%) were mechanically ventilated, and 178 (25%) had already started renal replacement therapy (RRT). The overall ICU mortality was 35% (242 deaths). For the subgroups with resistant shock, and tachycardic-shock the ICU mortalities were 40% (227 deaths), and 49% (131 deaths respectively).
 
-- [X] TODO(2016-03-17): subgrp tables 
 - [ ] TODO(2016-03-17): mosaic plot of subgrps by site
 
-## Variation in practice between sites in cardiovascular treatment variables
+## Treatment variation between sites
 ```{r treatment variation, include=FALSE, echo=FALSE}
 source("../analysis/fig_process_var.R")
 
 t1.trend("ne.24", "hosp.id.sort", data=wdt, var.cont=TRUE)
 t1.trend("map.24", "hosp.id.sort", data=wdt, var.cont=TRUE)
 t1.trend("fb.24", "hosp.id.sort", data=wdt, var.cont=TRUE)
-wdt[, .(mean(mv.24, na.rm=TRUE), mean(mort.itu), .N), by=hosp.id.sort]
-t1.trend("mv.24", "hosp.id.sort", data=wdt, var.cont=FALSE)
+
 wdt[, rx.roids.01 := ifelse(rx.roids==TRUE, 1, 0)]
 wdt[, .(mean(rx.roids.01, na.rm=TRUE), mean(mort.itu), .N), by=hosp.id.sort]
 t1.trend("rx.roids.01", "hosp.id.sort", data=wdt, var.cont=FALSE)
 t1.trend("rx.roids.01", "hosp.id.sort", data=wdt, var.cont=FALSE)
 
+t1.trend("rrt.24", "hosp.id.sort", data=wdt, var.cont=FALSE)
+t1.trend("mv.24", "hosp.id.sort", data=wdt, var.cont=FALSE)
+# - [ ] TODO(2016-03-25): add in test for trend for VADI/Sedation/RRT
+
 ```
-- [ ] TODO(2016-03-15): add in a test for trend?
-We examined noradrenaline dose, mean arterial pressure, fluid balance after ranking the sites by their mean 24 hour mortality (Figure 1). Inspection of these showed that mean arterial pressure (p=0.015) and noradrenaline doses (p<0.001) were higher in units that had higher mean mortalities (p value testing that the coefficient in a linear model is not zero). Conversely, first 24 hour fluid balances were higher in units with lower mortalities (p<0.001). 
+
+We examined noradrenaline dose administered at 24 hours after ranking the sites by their mean 24 hour mortality (Figure 1a). Noradrenaline doses were higher in units that had higher mean mortalites (test for trend by comparing the coefficient in a linear model to zero, p<0.0001). We repeated the process for the treatment variables that might affect 24 hour noradrenaline dose (mean arterial blood pressure, fluid balance, other vasoactive drugs, steroids, sedation, and other organ support). This showed that mean arterial pressure (p=0.015) was higher (p=0.014), and fluid balances lower in units with higher mean mortality. Similarly, other vasoactive drugs (p<0.001), corticosteroids (p=0.01) and sedation (p<0.001) were used more often, as was mechanical ventilation (p=0.0001), but not renal replacement therapy (p=0.056).
 
 For each of these three treatments we built two-level linear models to compare the strength of the association between patient predictors, other treatment variables, and the proportion of the remaining variation that was accounted for by the effect of the admitting ICU. 
 
