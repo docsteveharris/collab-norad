@@ -14,6 +14,8 @@
 # ===
 # 2016-03-15
 # - file cloned from model_ne24
+# 2016-03-27
+# - drop steroids from final model as too much missingness (lose all of RLH and GSTT)
 
 require(Hmisc)
 require(data.table)
@@ -154,7 +156,7 @@ vars.rx <- c("mv.24",
              "rrt.24",
              "rescale(sedation.24)",
              "vadi.other.24.logical",
-             "rx.roids",
+             # "rx.roids", - [ ] NOTE(2016-03-27): too much missingess
              "rescale(fb.24)"
              )
 
@@ -180,7 +182,7 @@ m.labels <- c(
     "Renal replacement therapy",
     "Sedation score",
     "Additional vasopressors",
-    "Steroid treatment",
+    # "Steroid treatment", - [ ] NOTE(2016-03-27): too much missingness
     "Fluid balance",
     "Heart rate",
     "Mean arterial pressure",
@@ -206,6 +208,32 @@ display(m)
 # Define formula
 # Varying intercept and varying slope
 f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+
+# Need to examine for missingness
+vars.pt
+require(dplyr)
+f.missing <- wdt %>% 
+    group_by(hosp) %>%
+    select( age,
+            male,
+            weight,
+            sepsis.site,
+            sofa.1,
+            lac.1,
+            mv.24,
+            rrt.24,
+            sedation.24,
+            vadi.other.24.logical,
+            rx.roids,
+            fb.24,
+            hr.24,
+            map.24,
+            ne.24
+           ) %>%
+    summarise_each(funs(sum(is.na(.))))
+
+f.missing %>% group_by(hosp) %>% mutate(tot.missing = sum(.)) %>% select(hosp,tot.missing)
+
 print(f)
 
 m <- glmer(f , data=wdt, family=binomial(link="logit"))
