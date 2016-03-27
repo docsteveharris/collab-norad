@@ -240,7 +240,31 @@ m <- glmer(f , data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
 
-str(m)
+#  ===================================================
+#  = Exploring simulations of the predicted response =
+#  ===================================================
+coef(m)
+fixef(m)
+ranef(m)
+# Obtain predictions
+y.tilde <- predict(m, type="response")
+describe(y.tilde)
+
+# Now bootstrap for CI
+require(boot)
+FUN <- function(m) {
+    y.tilde <- predict(m, type="response")
+    return(y.tilde)
+}
+y.tilde.boot <- bootMer(m, FUN, nsim=3)
+y.tilde.boot
+str(y.tilde.boot)
+summary(y.tilde.boot)
+summary(y.tilde.boot$t)
+head(y.tilde.boot$t)
+
+
+
 
 # Prepare table to save
 summary(m)$coefficients
