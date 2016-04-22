@@ -17,6 +17,8 @@
 # - file created
 # 2016-03-18
 # - adapted to become generic for each treatment variables
+# 2016-04-22
+# - drop 24 hour variables from model since these are hard to interpret in terms of predictors
 
 rm(list=ls(all=TRUE))
 
@@ -26,7 +28,8 @@ rm(list=ls(all=TRUE))
 options:
     --help              help  (print this)
     -d, --describe      describe this model
-    --rx=TREATMENT      specify treatment [default: ne.24]" -> doc
+    --rx=TREATMENT      specify treatment [default: ne.24]
+    --coeflim=COEFLIM  specify coef plot scale[default: 1]" -> doc
 
 require(docopt) # load the docopt library to parse
 opts <- docopt(doc, "--rx=ne.24") # for debugging
@@ -45,6 +48,8 @@ Potential variables
 }
 
 rx <- opts$rx         # define rx variable of interest
+coef.lim <- as.numeric(opts$coeflim)
+coef.lim <- c(-1*coef.lim, coef.lim)
 
 require(Hmisc)
 require(data.table)
@@ -117,7 +122,9 @@ m.labels <- c(
     "Renal replacement therapy",
     "Sedation score",
     "Additional vasopressors",
-    "Steroid treatment", m.labels.specific)
+    "Steroid treatment"
+    # , m.labels.specific
+    )
 
 # Describe the dependent variable
 describe(tdt$rx)
@@ -145,7 +152,9 @@ f <- formula(paste("rx ~ (1 | hosp.id)"))
 # Patient level predictors
 f <- formula(paste("rx ~ ", paste(c(vars.pt), collapse="+"), "+ (1 | hosp.id)"))
 # Patient and treatment level predictors
-f <- formula(paste("rx ~ ", paste(c(vars.pt, vars.rx, vars.other), collapse="+"), "+ (1 | hosp.id)"))
+# f <- formula(paste("rx ~ ", paste(c(vars.pt, vars.rx, vars.other), collapse="+"), "+ (1 | hosp.id)"))
+# Drop vars other since these are 24 hour variables - not sure it makes sense to adjust
+f <- formula(paste("rx ~ ", paste(c(vars.pt, vars.rx), collapse="+"), "+ (1 | hosp.id)"))
 
 # patient and treatment level predictors reduce individual level residual variation
 # hence the ICC appears to improve
@@ -175,7 +184,7 @@ m.table <- cbind(label=c("Intercept", m.labels), m.table)
 m.table
 
 p <- coef.plot(m) 
-p <- coef.plot(m, m.labels=m.labels)
+p <- coef.plot(m, m.labels=m.labels, coef.lim)
 print(p)
 ggsave(p, file=file.coefplot, width=3, height=3, scale=2)
 

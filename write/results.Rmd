@@ -23,15 +23,15 @@ source(file="../share/functions4paper.R")
 
 - [ ] TODO(2016-03-17): concept of sequentially stricter subgroups
 
-We requested data on one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were treated for presumed infection, required noradrenaline infusion for at least one hour, and survived for a minimum of 24 hours (in order that we could characterise their first 24 hours of treatment). We defined a subgroup of patients with resistant septic shock where the noradrenaline infusion was not weaned within 24 hours, and nested subgroup with tachycardic septic shock subgroup that mimicked the control group in the study by Morelli et al where the heart rate had to be greater than 95 beats/minute at 24 hours, and the patients had not received beta-blockers therapy.
+We requested data on one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were treated for presumed infection, required noradrenaline infusion for at least one hour, and survived for a minimum of 24 hours (in order that we could characterise their first 24 hours of treatment). We defined a subgroup of patients with resistant septic shock where the noradrenaline infusion was not weaned within 24 hours, and a nested subgroup with tachycardic septic shock subgroup. This latter subgroup mimicked the control group in the study by Morelli et al where the heart rate had to be greater than 95 beats/minute at 24 hours, and the patients had not received beta-blockers therapy.
 
 ## Definitions
 
-We abstracted patient and treatment level variables at 1 and 24 hours after the onset of septic shock. We summarised additional vasopressors with on an ordinal scale, and generated a similar scale to quantify sedation (see supplementary file). We classifed mean arterial pressure at 24 hours as high when greater than or equal to 75mmHg as per Asfar et al, and heart rates as high when greater than or equal to 95.[@Asfar:2014dl] We used ICU mortality as the primary outcome.
+We abstracted patient and treatment level variables at 1 and 24 hours after the onset of septic shock. We summarised additional vasopressors on an ordinal scale, and similarly generated a scale to quantify sedation (see supplementary file). We classifed mean arterial pressure at 24 hours as high when greater than or equal to 75mmHg (as per Asfar et al), and heart rates as high when greater than or equal to 95.[@Asfar:2014dl] We used ICU mortality as the primary outcome.
 
 ## Research questions
 
-We sought the proportion of ICU patients with septic shock in whom shock persisted at 24 hours, and the subgroup who were also tachycardic (heart rate greater than 95/minute). Persistent shock at 24 hours depends, in this population, on an ongoing requirement for noradrenaline. This in turn depends on the target blood pressure, the sedation used, concurrent inotrope and vasopressor support, steroid use, the approach to fluid management, and additional organ support. We therefore built models of the noradrenaline dose at 24 hours including these treatment variables as well as patient characteristics at baseline (age, sex, weight, source of sepsis, initial SOFA score, and initial lactate). Finally, we evaluated the relationship between noradrenaline dose at 24 hours and ICU mortality, and specifically sought to define whether the relationship was similar for subgroups with high and low heart rates, and high and low mean arterial pressures.
+We sought the proportion of ICU patients presenting with septic shock in whom shock persisted at 24 hours, and the subgroup who were also tachycardic (heart rate greater than 95/minute). Persistent shock at 24 hours depends, in this population, on an ongoing requirement for noradrenaline. This in turn depends on the target blood pressure, the sedation used, concurrent inotrope and vasopressor support, steroid use, the approach to fluid management, and additional organ support. We therefore built models of the noradrenaline dose at 24 hours including these treatment variables as well as patient characteristics at baseline (age, sex, weight, source of sepsis, initial SOFA score, and initial lactate). Finally, we evaluated the relationship between noradrenaline dose at 24 hours and ICU mortality, and specifically sought to define whether the relationship was similar for subgroups with high and low heart rates, and high and low mean arterial pressures.
 
 ## Statistical analaysis	
 
@@ -40,7 +40,7 @@ All models included random effects for the ICU. We used a linear model with a lo
 We used the intraclass correlation (ICC) to summarise the proportion of the variation in each outcome that might be explained by the admitting ICU rather than individual patient differences. A high value implies that patients admitted to the same ICU are likely to have similar outcomes. For linear outcomes, the ICC is calculated as $$\frac{V_{ICU}}{V_{ICU}+V_{patient}}$$, and for binary outcomes as $$\frac{V_{ICU}}{V_{ICU}+\frac{\pi^2/}{3}$$.[@Merlo:2006hs]
 <!-- - [ ] TODO(2016-03-17): bootstrap CI for ICC? -->
 
-For the final ICU mortality model, where we specifically investigated the effect of noradrenaline dose on mortality, we allowed its effect to vary between sites in a random intercept/random slope model, and included interactions between noradrenaline and high and low mean arterial pressures, high and low heart rates.
+For the final ICU mortality model, where we specifically investigated the effect of noradrenaline dose on mortality, we allowed its effect to vary between ICUs in a random intercept/random slope model, and included interactions between noradrenaline and high and low mean arterial pressures, high and low heart rates.
 
 
 # Results
@@ -58,7 +58,7 @@ with(wdt.original, table(exclude.los.itu.0, mort.itu))
 
 We screened `r nrow(wdt.original)` consecutive admissions with septic shock from `r length(unique(wdt$hosp))` hospitals in 4 European countries. We excluded 45 patients (6 missing data on their initial noradrenaline requirement, and 39 deaths within 24 hours). Each hospital contributing a median of `r hosp.n$q50` patients (IQR `r hosp.n$iqr`).
 
-The subgroup of patients with resistant septic shock comprised `r grp.ne24$n[2]` patients (`r grp.ne24$n[2]`) who had not been weaned from noradrenaline within 24 hours. Within this, the tachycardic-shocked subgroup included `r grp.morelli$n[2]` (`r grp.morelli$p[2]`) patients with a heart rate greater than 95 beats/minute without preceding beta-blocker treatment. 
+The subgroup of patients with resistant septic shock comprised `r grp.ne24$n[2]` patients (`r grp.ne24$n[2]`) who had not been weaned from noradrenaline within 24 hours. Within this, the tachycardic-shocked subgroup included `r grp.morelli$n[2]` (`r grp.morelli$p[2]`) patients with a heart rate greater than 95 beats/minute without preceding beta-blocker treatment. Subgroups were not evenly distributed between ICUs (Figure 1).
 
 ## Patient characteristics
 
@@ -73,9 +73,7 @@ The subgroup of patients with resistant septic shock comprised `r grp.ne24$n[2]`
 
 Septic shock occurred within 48 hours of admission for 460 (80%) of patient. Pneumonia was the commonest cause (292 patients, 42%). Patient variables at 24 hours following onset of septic shock are reported in Table 1. The median SOFA score was 10 (IQR 7 to 12), and the lactate at the same time was `r lac24$q50` mmol/l (IQR `r lac24$iqr`) with `r lac24gt2$n[2]` (`r lac24gt2$p[2]`) patients have a lactate greater than 2 mmol/l. The majority of patients (556, 77%) were mechanically ventilated, and 178 (25%) had already started renal replacement therapy (RRT). The overall ICU mortality was 35% (242 deaths). For the subgroups with resistant shock, and tachycardic-shock the ICU mortalities were 40% (227 deaths), and 49% (131 deaths respectively).
 
-- [ ] TODO(2016-03-17): mosaic plot of subgrps by site
-
-## Treatment variation between sites
+## Treatment variation between ICUs
 ```{r treatment variation, include=FALSE, echo=FALSE}
 source("../analysis/fig_process_var.R")
 
@@ -94,19 +92,16 @@ t1.trend("mv.24", "hosp.id.sort", data=wdt, var.cont=FALSE)
 
 ```
 
-We examined noradrenaline dose administered at 24 hours after ranking the sites by their mean 24 hour mortality (Figure 1a). Noradrenaline doses were higher in units that had higher mean mortalites (test for trend by comparing the coefficient in a linear model to zero, p<0.0001). We repeated the process for the treatment variables that might affect 24 hour noradrenaline dose (mean arterial blood pressure, fluid balance, other vasoactive drugs, steroids, sedation, and other organ support). This showed that mean arterial pressure (p=0.015) was higher (p=0.014), and fluid balances lower in units with higher mean mortality. Similarly, other vasoactive drugs (p<0.001), corticosteroids (p=0.01) and sedation (p<0.001) were used more often, as was mechanical ventilation (p=0.0001), but not renal replacement therapy (p=0.056).
-
-For each of these three treatments we built two-level linear models to compare the strength of the association between patient predictors, other treatment variables, and the proportion of the remaining variation that was accounted for by the effect of the admitting ICU. 
-
+We examined noradrenaline doses administered at 24 hours after ranking the ICUs by their mean 24 hour mortality (Figure 2, top panel). Noradrenaline doses were higher in units that had higher mean mortalites (test for trend by comparing the coefficient in a linear model to zero, p<0.0001). We repeated the process for the treatment variables that might affect 24 hour noradrenaline dose (mean arterial blood pressure, fluid balance, other vasoactive drugs, steroids, sedation, and other organ support). This showed that mean arterial pressure (p=0.015) was higher (p=0.014), and fluid balances lower in units with higher mean mortality. Similarly, other vasoactive drugs (p<0.001), corticosteroids (p=0.01) and sedation (p<0.001) were used more often, as was mechanical ventilation (p=0.0001), but not renal replacement therapy (p=0.056) (see supplementary Figure 1).
 
 ## Predictors of 24 hour treatment variables
-<!-- - [ ] TODO(2016-03-26): re-express the coefficients on a natural scale in the table -->
 
-We entered each of these treatment variables alongside baseline measurements of severity of illness into a model to predict noradrenaline dose at 24 hours (all estimates on the log scale, see Table and Figure 2). Patients with abdominal sepsis, those with higher baseline SOFA scores or lactate received higher noradrenaline doses. Among the treatment variables measured, patients receiving additional vasopressors during the first 24 hours, and those with a higher fluid balance had higher noradrenaline doses whereas the lower the mean arterial pressure at the same time point the lower the noradrenaline dose. Neither the concurrent use of sedation, mechanical ventilation nor steroids in this time period affected noradrenaline dose. 
+For noradrenaline, mean arterial pressure and fluid balance, we entered each variable into a model to understand the relative contributions of patient predictors (at baseline) and the ICU level effect on these measures at 24 hours (Figure 2 [lower panel], and Table 2). For example, higher baseline SOFA scores and lactate measures are were associated with noradrenaline requirement at 24 hours. However, the same variables had little effect on MAP at the same time point (presumably because it was defined by noradrenaline dose instead), and baseline lactate but not the SOFA score was correlated with fluid balance.
 
-Examining how variation in noradrenaline dosing at 24 hours was split between individual patients and ICUs in this multi-level model, we found that a large proportion (ICC 56%) was accounted for by the ICU. 
+The ICC (proportion of variance in the multilevel model accounted for by the ICU) for the 24 hour values of noradrenaline dose was 44%, for MAP was 4%, and for fluid balance was 29%.
 
-## Variation in mortality between sites
+## Variation in mortality between ICUs
+
 
 - [ ] TODO(2016-03-10): compare mortality to that reported in JAMA paper
 - [ ] TODO(2016-03-10): report intersite variation in mortailty
@@ -121,3 +116,28 @@ Examining how variation in noradrenaline dosing at 24 hours was split between in
 - [ ] report patients meeting criteria for septic shock as per Sepsis 3
 	- blood pressure or norad (all)
 	- lactate > 2
+
+# Figures
+
+## Figure 1
+
+Figure 1: Mosaic plot of subgroups by ICU. The width of each bar is proportional to the number of patients from that ICU, and the height is proprotional to the most specific subgroup (tachycardic shock, resistant shock, and shock).
+
+![](figures/model_subgrp_mosaic.jpg)
+
+## Figure 2
+
+Figure 2 (Top panel): Box and whisker plots of treatment variables (noradrenaline dose, mean arterial pressure, and fluid balance) at 24 hours for each ICU. The ICUs are ordered by the mean ICU mortality rate (ascending from left to right).
+
+Figure 2 (Bottom panel): Standardised regression coefficients for patient level predictors of 24 hour treatment variables (noradrenaline dose, mean arterial pressure, and fluid balance). The point estimates are surrouneded by black and grey limits representing one and two standard error limits. For MAP, the standard errors were so large that the x-axis scale has been extended to four standardised coefficients above and below zero.
+
+![](figures/process_all.jpg)
+
+# Supplementary Figures
+
+## Supplementary Figure 1
+
+Supplementary Figure 1: Mosaic plots of the proportion of patients in receipt of additional vasopressors, mechanical ventilation, renal replacement therapy, and sedation (clockwise from top left). The width of each bar is proportional to the number of patients with data from each ICU. The bars are ordered by the mean ICU mortality rate (ascending from left to right).
+
+
+Figure 2:

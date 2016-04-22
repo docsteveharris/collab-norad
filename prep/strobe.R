@@ -5,6 +5,7 @@ load(file='../data/cleaned.Rdata')
 library(data.table)
 library(Hmisc)
 wdt.original <- wdt
+set.seed(3001)
 
 #  =======================================
 #  = Generate working data and subgroups =
@@ -65,9 +66,10 @@ wdt.original[, grp.morelli := ifelse(include==1 & exclude.rx.betablock == 0 & ex
 wdt <- wdt.original[include==1]
 
 # Encode the hospitals
+# Set seed so labels although random are consistent (see line 8 above)
 (dt.hosp <- data.table(hosp=unique(wdt$hosp), hosp.id=rnorm(8)))
 setorder(dt.hosp,hosp.id)
-dt.hosp[,hosp.id := LETTERS[.I]]
+dt.hosp[,hosp.id := letters[.I]]
 dt.hosp
 setkey(dt.hosp, hosp)
 setkey(wdt, hosp)
@@ -81,7 +83,7 @@ table(wdt$hosp.id)
 m <- wdt[, .(s = mean(mort.itu, na.rm=TRUE)), by=hosp.id]
 setorder(m, s)
 m[, hosp.id.sort := .I ]
-m[, hosp.id.sort := factor(hosp.id.sort, labels=m$hosp.id, ordered=TRUE)]
+m[, hosp.id.sort := factor(hosp.id.sort, labels=LETTERS[1:length(levels(hosp.id))], ordered=TRUE)]
 setkey(wdt,hosp.id)
 wdt <- wdt[m[,.(hosp.id,hosp.id.sort)]]
 # str(wdt)

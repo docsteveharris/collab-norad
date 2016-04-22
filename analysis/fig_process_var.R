@@ -21,6 +21,7 @@
 #     - steroids
 #     - mv
 #     - rrt
+# FIXME: labelling of categories is wrong
 
 # Log
 # ===

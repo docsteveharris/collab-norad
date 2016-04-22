@@ -70,7 +70,7 @@ ICC <- function(m) {
 }
 
 # function to produce coefficient plots
-coef.plot <- function(model=m, m.labels=NULL) {
+coef.plot <- function(model=m, m.labels=NULL, coef.lim=NULL) {
 
     # Load packages
     require(data.table)
@@ -130,14 +130,18 @@ coef.plot <- function(model=m, m.labels=NULL) {
         m.labels <- rev(m.labels)
     }
 
-    gg.p <- ggplot(data=m.coef, aes(x=ivar, y=est)) + 
-        geom_hline(yintercept=0, colour="grey", ) +
-        geom_linerange(aes(ymin=est - 2 * se, ymax=est + 2 * se), colour="grey") +
-        geom_pointrange(aes(ymin=est - 1 * se, ymax=est + 1 * se), lwd=0.5, fatten=2) +
-        scale_x_discrete(limits=rev(levels(m.coef$ivar)), labels=m.labels) +
-        xlab("Predictor") + ylab("Effect estimate") +
-        coord_flip() +
+    gg.p <- ggplot(data=m.coef, aes(y=ivar, yend=ivar, x=est)) + 
+        geom_vline(xintercept=0, colour="grey", ) +
+        geom_segment(aes(x=est - 2 * se, xend=est + 2 * se), colour="grey") +
+        geom_segment(aes(x=est - 1 * se, xend=est + 1 * se), lwd=0.5, size=2) +
+        geom_point(shape=18, size=2) +
+        scale_y_discrete(limits=rev(levels(m.coef$ivar)), labels=m.labels) +
+        ylab("Predictor") + xlab("Effect estimate") +
         theme_minimal()
+
+    if (!is.null(coef.lim)) {
+        gg.p <- gg.p + coord_cartesian(xlim=coef.lim, expand=TRUE)
+    }
     # print(gg.p)
     return(gg.p)
 }

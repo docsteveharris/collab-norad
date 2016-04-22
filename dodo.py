@@ -64,8 +64,8 @@ def task_table1():
 	}
 
 
-def task_model_rx():
-    """Builds treatment variable models"""
+def task_model_rx_ne():
+    """Builds treatment variable models - NE"""
 
     return {
         "uptodate": [False],
@@ -77,7 +77,41 @@ def task_model_rx():
                     "write/tables/model_rx_ne.24.xlsx"
                     ],
         "actions": [
-            "cd analysis && Rscript model_rx.R --rx=ne.24 | tee ../logs/model_rx_ne.24.Rout"
+            "cd analysis && Rscript model_rx.R --rx=ne.24 --coeflim=2 | tee ../logs/model_rx_ne.24.Rout"
+            ]
+    }
+
+def task_model_rx_map():
+    """Builds treatment variable models - MAP"""
+
+    return {
+        "uptodate": [False],
+        # "basename": "model_rx",
+        "file_dep": ["data/strobe.RData", "analysis/model_rx.R"],
+        "targets": [
+                    "logs/model_rx_map.24.Rout",
+                    "write/figures/model_rx_map.24.eps",
+                    "write/tables/model_rx_map.24.xlsx"
+                    ],
+        "actions": [
+            "cd analysis && Rscript model_rx.R --rx=map.24 --coeflim=4 | tee ../logs/model_rx_map.24.Rout"
+            ]
+    }
+
+def task_model_rx_fb():
+    """Builds treatment variable models - FB"""
+
+    return {
+        "uptodate": [False],
+        # "basename": "model_rx",
+        "file_dep": ["data/strobe.RData", "analysis/model_rx.R"],
+        "targets": [
+                    "logs/model_rx_fb.24.Rout",
+                    "write/figures/model_rx_fb.24.eps",
+                    "write/tables/model_rx_fb.24.xlsx"
+                    ],
+        "actions": [
+            "cd analysis && Rscript model_rx.R --rx=fb.24 --coeflim=2 | tee ../logs/model_rx_fb.24.Rout"
             ]
     }
 
