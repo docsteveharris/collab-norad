@@ -33,7 +33,7 @@ source(file="../share/functions4paper.R")
 
 
 describe(wdt$sepsis.site)
-with(wdt, CrossTable(mort.itu, hosp.id.sort))
+with(wdt, table(mort.itu, hosp.id.sort))
 
 # Null model
 m <- glm(mort.itu ~ 1 , data=wdt)
@@ -53,9 +53,9 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(40,120), y=c(0,1)) +
     theme_minimal()
-m <- glm(mort.itu ~ map.24, data=wdt)
+m <- glm(mort.itu ~ rescale(map.24), data=wdt)
 display(m)
-m <- glm(mort.itu ~ map.high, data=wdt)
+m <- glm(mort.itu ~ rescale(map.high), data=wdt)
 display(m)
 gg.q <- ggplot(data=wdt, aes(x=map.24, y=mort.itu))
 
@@ -70,8 +70,7 @@ gg.q    +
     theme_minimal()
 
 # Varying intercept
-m <- glmer(mort.itu ~ map.24 + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
-display(m)
+m <- glmer(mort.itu ~ rescale(map.24) + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
 
@@ -82,9 +81,9 @@ gg.q    +
     geom_smooth(method="loess") + 
     geom_rug(data=wdt[mort.itu==1], sides='t', position='jitter', alpha=1/10) +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
-    coord_cartesian(x=c(40,120)) +
+    coord_cartesian(xlim=c(40,120), ylim=c(0,1)) +
     theme_minimal()
-m <- glm(mort.itu ~ hr.24, data=wdt)
+m <- glm(mort.itu ~ rescale(hr.24), data=wdt)
 display(m)
 m <- glm(mort.itu ~ hr.high, data=wdt)
 display(m)
@@ -99,7 +98,7 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(40,120)) +
     theme_minimal()
-m <- glmer(mort.itu ~ hr.24 + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
+m <- glmer(mort.itu ~ rescale(hr.24) + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
 m <- glmer(mort.itu ~ hr.high + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
@@ -115,7 +114,7 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(0,2)) +
     theme_minimal()
-m <- glm(mort.itu ~ ne.24, data=wdt)
+m <- glm(mort.itu ~ rescale(ne.24), data=wdt)
 display(m)
 gg.q <- ggplot(data=wdt, aes(x=ne.24, y=mort.itu))
 # Univariate by site
@@ -127,7 +126,7 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(0,2)) +
     theme_minimal()
-m <- glmer(mort.itu ~ ne.24 + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
+m <- glmer(mort.itu ~ rescale(ne.24) + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
 
@@ -162,11 +161,14 @@ vars.rx <- c("mv.24",
 
 # - norad and interactions of interest
 vars.ne <- c(
-            "rescale(hr.24)",
-            "rescale(map.24)",
+            # "rescale(hr.24)",
+            "hr.high",
+            # "rescale(map.24)",
+            "map.high",
             "rescale(ne.24)",
             "hr.high:rescale(ne.24)",
-            "map.high:rescale(ne.24)"
+            "rescale(ne.24):hr.high",
+            "rescale(ne.24):map.high"
                    )
 
 m.labels <- c(
@@ -197,7 +199,7 @@ m <- glmer(f, data=wdt, family=binomial(link="logit"))
 display(m)
 
 # Define formula
-# Varying intercept and slope (for ne.24)
+# Varying intercept (for ne.24)
 f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 | hosp.id)"))
 print(f)
 
@@ -208,6 +210,9 @@ display(m)
 # Define formula
 # Varying intercept and varying slope
 f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+m <- glmer(f, data=wdt, family=binomial(link="logit"))
+coef.plot(m)
+display(m)
 
 # Need to examine for missingness
 vars.pt
@@ -231,14 +236,110 @@ f.missing <- wdt %>%
             ne.24
            ) %>%
     summarise_each(funs(sum(is.na(.))))
+f.missing
+
+# - [ ] TODO(2016-04-22): 
+# - [ ] NOTE(2016-04-22): inspection shows that misssing all rx.roids from RLH
+#   drop this from the model (not worth including)
+# - [ ] NOTE(2016-04-22): ditto for sofa.1 at GSTT
+#   will need to exclude GSTT from model
+View(f.missing)
+
 
 f.missing %>% group_by(hosp) %>% mutate(tot.missing = sum(.)) %>% select(hosp,tot.missing)
-
-print(f)
 
 m <- glmer(f , data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
+
+
+# Check in a simplified model
+vars.ne <- c(
+            # "rescale(hr.24)",
+            "hr.high",
+            # "rescale(map.24)",
+            "map.high",
+            "rescale(ne.24)",
+            "hr.high:rescale(ne.24)",
+            "rescale(ne.24):hr.high",
+            "rescale(ne.24):map.high"
+                   )
+
+f <- formula(paste("mort.itu ~ ", paste(c(vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+print(f)
+m <- glmer(f, data=wdt, family=binomial(link="logit"))
+coef.plot(m)
+display(m)
+
+# Check in a simplified model (now remove map)
+vars.ne <- c(
+            # "rescale(hr.24)",
+            "hr.high",
+            # "rescale(map.24)",
+            # "map.high",
+            "rescale(ne.24)",
+            "hr.high:rescale(ne.24)",
+            "rescale(ne.24):hr.high"
+            # "rescale(ne.24):map.high"
+                   )
+
+# So comparison of simplified model with/without interaction suggests a very marginal improvement
+f <- formula(paste("mort.itu ~ ", paste(c(vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+print(f)
+m0 <- glmer(mort.itu ~ hr.high +rescale(ne.24) 
+           + (1 + rescale(ne.24) | hosp.id), data=wdt, family=binomial(link="logit"))
+print(m0)
+m1 <- glmer(mort.itu ~ hr.high +rescale(ne.24) + hr.high:rescale(ne.24)
+           + (1 + rescale(ne.24) | hosp.id), data=wdt, family=binomial(link="logit"))
+print(m1)
+anova(m0,m1)
+
+# Let's formally report this in the full model
+vars.ne <- c(
+            # "rescale(hr.24)",
+            "hr.high",
+            # "rescale(map.24)",
+            # "map.high",
+            "rescale(ne.24)",
+            # "hr.high:rescale(ne.24)",
+            "rescale(ne.24):hr.high",
+            "rescale(ne.24):map.high"
+                   )
+f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+m0 <- glmer(f, data=wdt, family=binomial(link="logit"))
+
+vars.ne <- c(
+            # "rescale(hr.24)",
+            "hr.high",
+            # "rescale(map.24)",
+            # "map.high",
+            "rescale(ne.24)",
+            # "hr.high:rescale(ne.24)",
+            # "rescale(ne.24):hr.high"
+            "rescale(ne.24):map.high"
+                   )
+f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+m1 <- glmer(f, data=wdt, family=binomial(link="logit"))
+print(m0)
+print(m1)
+# marginal but 'significant' improvement in fit
+anova(m0,m1)
+
+# - [ ] NOTE(2016-04-22): shows that mort ~ ne.24 depends on HR
+# check by plotting
+# but plot is _not_ convincing, we should not report this
+
+tdt <- wdt[!is.na(hr.high)]
+gg.q <- ggplot(data=tdt, aes(x=ne.24, y=mort.itu))
+# Univariate by site
+gg.q    +
+    geom_smooth(method="lm") + 
+    # geom_smooth(method="loess") + 
+    facet_grid(hr.high ~ hosp.id.sort) +
+    geom_rug(data=tdt[mort.itu==1], sides='t', position='jitter', alpha=1/10) +
+    geom_rug(data=tdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
+    coord_cartesian(x=c(0,2)) +
+    theme_minimal()
 
 #  ===================================================
 #  = Exploring simulations of the predicted response =
