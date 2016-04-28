@@ -31,14 +31,27 @@ rm(list=ls(all=TRUE))
 load("../data/strobe.Rdata")
 source(file="../share/functions4paper.R")
 
-
 describe(wdt$sepsis.site)
 with(wdt, table(mort.itu, hosp.id.sort))
 
 # Null model
 m <- glm(mort.itu ~ 1 , data=wdt)
-m <- glm(mort.itu ~ rescale(age) , data=wdt)
-coef.plot(m)
+m <- glm(mort.itu ~ age.rs , data=wdt)
+# coef.plot(m)
+
+# Prepare scaled variables
+wdt[, `:=` (
+    age.rs = rescale(age),
+    weight.rs = rescale(weight),
+    sofa.1.rs = rescale(sofa.1),
+    lac.1.rs = rescale(lac.1),
+    sedation.24.rs = rescale(sedation.24),
+    fb.24.rs = rescale(fb.24),
+    hr.24.rs = rescale(hr.24),
+    ne.24.rs = rescale(ne.24)
+            )
+]
+wdt
 
 #  ===================================
 #  = Exploratory model building work =
@@ -53,9 +66,9 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(40,120), y=c(0,1)) +
     theme_minimal()
-m <- glm(mort.itu ~ rescale(map.24), data=wdt)
+m <- glm(mort.itu ~ map.24.rs, data=wdt)
 display(m)
-m <- glm(mort.itu ~ rescale(map.high), data=wdt)
+m <- glm(mort.itu ~ map.high.rs, data=wdt)
 display(m)
 gg.q <- ggplot(data=wdt, aes(x=map.24, y=mort.itu))
 
@@ -70,7 +83,7 @@ gg.q    +
     theme_minimal()
 
 # Varying intercept
-m <- glmer(mort.itu ~ rescale(map.24) + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
+m <- glmer(mort.itu ~ map.24.rs + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
 
@@ -83,7 +96,7 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(xlim=c(40,120), ylim=c(0,1)) +
     theme_minimal()
-m <- glm(mort.itu ~ rescale(hr.24), data=wdt)
+m <- glm(mort.itu ~ hr.24.rs, data=wdt)
 display(m)
 m <- glm(mort.itu ~ hr.high, data=wdt)
 display(m)
@@ -98,12 +111,12 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(40,120)) +
     theme_minimal()
-m <- glmer(mort.itu ~ rescale(hr.24) + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
+m <- glmer(mort.itu ~ hr.24.rs + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
 display(m)
-coef.plot(m)
+# coef.plot(m)
 m <- glmer(mort.itu ~ hr.high + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
 display(m)
-coef.plot(m)
+# coef.plot(m)
 
 # Check Noradrenaline
 # Univariate
@@ -114,21 +127,21 @@ gg.q    +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(0,2)) +
     theme_minimal()
-m <- glm(mort.itu ~ rescale(ne.24), data=wdt)
+m <- glm(mort.itu ~ ne.24.rs, data=wdt)
 display(m)
 gg.q <- ggplot(data=wdt, aes(x=ne.24, y=mort.itu))
 # Univariate by site
 gg.q    +
-    # geom_smooth(method="lm") + 
-    geom_smooth(method="loess") + 
+    geom_smooth(method="lm") + 
+    # geom_smooth(method="loess") + 
     facet_grid(. ~ hosp.id.sort) +
     geom_rug(data=wdt[mort.itu==1], sides='t', position='jitter', alpha=1/10) +
     geom_rug(data=wdt[mort.itu==0], sides='b', position='jitter', alpha=1/10) +
     coord_cartesian(x=c(0,2)) +
     theme_minimal()
-m <- glmer(mort.itu ~ rescale(ne.24) + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
+m <- glmer(mort.itu ~ ne.24.rs + (1 | hosp.id), data=wdt, family=binomial(link="logit"))
 display(m)
-coef.plot(m)
+# coef.plot(m)
 
     
 #  ====================
@@ -142,7 +155,7 @@ with(wdt, summary(ne.24))
 #   + weight
 #   + sepsis site
 #   + initial SOFA score (at hour 1) 
-vars.pt <- c("rescale(age)", "male", "rescale(weight)", "sepsis.site", "rescale(sofa.1)", "rescale(lac.1)")
+vars.pt <- c("age.rs", "male", "weight.rs", "sepsis.site", "sofa.1.rs", "lac.1.rs")
 
 # - define treatment variables for adjustment
 #   + mechanical ventilation
@@ -150,25 +163,25 @@ vars.pt <- c("rescale(age)", "male", "rescale(weight)", "sepsis.site", "rescale(
 #   + other vasopressors (yes/no)
 #   + other inotropes (yes/no) ? or just combine with above and calculate by subtracting from VADI
 #   + sedatation dose
-# vars.rx <- c("mv.24", "rrt.24", "rescale(vadi.24)", "rescale(sedation.24)", "rx.roids")
+# vars.rx <- c("mv.24", "rrt.24", "vadi.24.rs", "sedation.24.rs", "rx.roids")
 vars.rx <- c("mv.24",
              "rrt.24",
-             "rescale(sedation.24)",
+             "sedation.24.rs",
              "vadi.other.24.logical",
              # "rx.roids", - [ ] NOTE(2016-03-27): too much missingess
-             "rescale(fb.24)"
+             "fb.24.rs"
              )
 
 # - norad and interactions of interest
 vars.ne <- c(
-            # "rescale(hr.24)",
+            # "hr.24.rs",
             "hr.high",
-            # "rescale(map.24)",
+            # "map.24.rs",
             "map.high",
-            "rescale(ne.24)",
-            "hr.high:rescale(ne.24)",
-            "rescale(ne.24):hr.high",
-            "rescale(ne.24):map.high"
+            "ne.24.rs",
+            "hr.high:ne.24.rs",
+            "ne.24.rs:hr.high",
+            "ne.24.rs:map.high"
                    )
 
 m.labels <- c(
@@ -203,13 +216,14 @@ display(m)
 f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 | hosp.id)"))
 print(f)
 
+# - [ ] NOTE(2016-04-28): losing GSTT b/c no baseline SOFA
 m <- glmer(f, data=wdt, family=binomial(link="logit"))
 coef.plot(m)
 display(m)
 
 # Define formula
 # Varying intercept and varying slope
-f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
 m <- glmer(f, data=wdt, family=binomial(link="logit"))
 coef.plot(m)
 display(m)
@@ -223,13 +237,17 @@ f.missing <- wdt %>%
             male,
             weight,
             sepsis.site,
+            # - [ ] NOTE(2016-04-22): ditto for sofa.1 at GSTT
+            #   will need to exclude GSTT from model
             sofa.1,
             lac.1,
             mv.24,
             rrt.24,
             sedation.24,
             vadi.other.24.logical,
-            rx.roids,
+            # - [ ] NOTE(2016-04-22): inspection shows that misssing all rx.roids from RLH
+            #   drop this from the model (not worth including)
+            # rx.roids,
             fb.24,
             hr.24,
             map.24,
@@ -237,35 +255,32 @@ f.missing <- wdt %>%
            ) %>%
     summarise_each(funs(sum(is.na(.))))
 f.missing
-
-# - [ ] TODO(2016-04-22): 
-# - [ ] NOTE(2016-04-22): inspection shows that misssing all rx.roids from RLH
-#   drop this from the model (not worth including)
-# - [ ] NOTE(2016-04-22): ditto for sofa.1 at GSTT
-#   will need to exclude GSTT from model
-View(f.missing)
-
-
+# View(f.missing)
 f.missing %>% group_by(hosp) %>% mutate(tot.missing = sum(.)) %>% select(hosp,tot.missing)
 
+
+
+
+f
 m <- glmer(f , data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
 
 
+# Full model suggests interaction between norad and heart rate
 # Check in a simplified model
 vars.ne <- c(
-            # "rescale(hr.24)",
+            # "hr.24.rs",
             "hr.high",
-            # "rescale(map.24)",
+            # "map.24.rs",
             "map.high",
-            "rescale(ne.24)",
-            "hr.high:rescale(ne.24)",
-            "rescale(ne.24):hr.high",
-            "rescale(ne.24):map.high"
+            "ne.24.rs",
+            "hr.high:ne.24.rs",
+            "ne.24.rs:hr.high",
+            "ne.24.rs:map.high"
                    )
 
-f <- formula(paste("mort.itu ~ ", paste(c(vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+f <- formula(paste("mort.itu ~ ", paste(c(vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
 print(f)
 m <- glmer(f, data=wdt, family=binomial(link="logit"))
 coef.plot(m)
@@ -273,55 +288,81 @@ display(m)
 
 # Check in a simplified model (now remove map)
 vars.ne <- c(
-            # "rescale(hr.24)",
+            # "hr.24.rs",
             "hr.high",
-            # "rescale(map.24)",
+            # "map.24.rs",
             # "map.high",
-            "rescale(ne.24)",
-            "hr.high:rescale(ne.24)",
-            "rescale(ne.24):hr.high"
-            # "rescale(ne.24):map.high"
+            "ne.24.rs",
+            "hr.high:ne.24.rs",
+            "ne.24.rs:hr.high"
+            # "ne.24.rs:map.high"
                    )
 
 # So comparison of simplified model with/without interaction suggests a very marginal improvement
-f <- formula(paste("mort.itu ~ ", paste(c(vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+f <- formula(paste("mort.itu ~ ", paste(c(vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
 print(f)
-m0 <- glmer(mort.itu ~ hr.high +rescale(ne.24) 
-           + (1 + rescale(ne.24) | hosp.id), data=wdt, family=binomial(link="logit"))
+m0 <- glmer(mort.itu ~ hr.high +ne.24.rs 
+           + (1 + ne.24.rs | hosp.id), data=wdt, family=binomial(link="logit"))
 print(m0)
-m1 <- glmer(mort.itu ~ hr.high +rescale(ne.24) + hr.high:rescale(ne.24)
-           + (1 + rescale(ne.24) | hosp.id), data=wdt, family=binomial(link="logit"))
+m1 <- glmer(mort.itu ~ hr.high +ne.24.rs + hr.high:ne.24.rs
+           + (1 + ne.24.rs | hosp.id), data=wdt, family=binomial(link="logit"))
 print(m1)
 anova(m0,m1)
 
 # Let's formally report this in the full model
+rm(m0,m1)
+# - [ ] NOTE(2016-04-28): no evidence for ne.24 and map.high interaction (so drop)
+# - [ ] NOTE(2016-04-28): compare m0 and m1 to test if there is evidence for a ne.24 and hr interaction
 vars.ne <- c(
-            # "rescale(hr.24)",
-            "hr.high",
-            # "rescale(map.24)",
+            "hr.24.rs",
+            # "hr.high",
+            # "map.24.rs",
             # "map.high",
-            "rescale(ne.24)",
-            # "hr.high:rescale(ne.24)",
-            "rescale(ne.24):hr.high",
-            "rescale(ne.24):map.high"
+            "ne.24.rs",
+            # "hr.high:ne.24.rs",
+            "ne.24.rs:hr.high"
+            # ,
+            # "ne.24.rs:map.high"
                    )
-f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+# problems with convergence - possible solutions 
+# - rescale vars
+f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
+f
 m0 <- glmer(f, data=wdt, family=binomial(link="logit"))
+# https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html
+# check for singlularity
+tt <- getME(m0,"theta")
+ll <- getME(m0,"lower")
+min(tt[ll==0])
+# OK
+
+# Try improving the fit by further iterations starting from prev model
+ss <- getME(m0,c("theta","fixef"))
+m0 <- update(m0,start=ss,control=glmerControl(optCtrl=list(maxfun=2e4)))
+m0
+# Works!?
+
+display(m0)
+data.frame(summary(m0)$coefficients)
+# - [ ] NOTE(2016-04-28): NOT plotting correctly (plots that last plot in memory?)
+# coef.plot(model=m0)
 
 vars.ne <- c(
-            # "rescale(hr.24)",
-            "hr.high",
-            # "rescale(map.24)",
+            "hr.24.rs",
+            # "hr.high",
+            # "map.24.rs",
             # "map.high",
-            "rescale(ne.24)",
-            # "hr.high:rescale(ne.24)",
-            # "rescale(ne.24):hr.high"
-            "rescale(ne.24):map.high"
+            "ne.24.rs"
+            # ,
+            # "hr.high:ne.24.rs",
+            # "ne.24.rs:hr.high"
+            # "ne.24.rs:map.high"
                    )
-f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + rescale(ne.24) | hosp.id)"))
+f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
+f
 m1 <- glmer(f, data=wdt, family=binomial(link="logit"))
-print(m0)
-print(m1)
+# print(m0)
+# print(m1)
 # marginal but 'significant' improvement in fit
 anova(m0,m1)
 
@@ -344,6 +385,11 @@ gg.q    +
 #  ===================================================
 #  = Exploring simulations of the predicted response =
 #  ===================================================
+# - [ ] TODO(2016-04-28): bootstrap respecting hierarchical structure @next
+# - [ ] TODO(2016-04-28): bootstrap more simulations @next
+# - [ ] TODO(2016-04-28): bootstrap both models for comparison @later
+
+m <- m1 # use model without interaction
 coef(m)
 fixef(m)
 ranef(m)
@@ -357,6 +403,8 @@ FUN <- function(m) {
     y.tilde <- predict(m, type="response")
     return(y.tilde)
 }
+
+# Running with just 3 simulations while developing
 y.tilde.boot <- bootMer(m, FUN, nsim=3)
 y.tilde.boot
 str(y.tilde.boot)
@@ -364,6 +412,38 @@ summary(y.tilde.boot)
 summary(y.tilde.boot$t)
 head(y.tilde.boot$t)
 
+
+# Summarise mean of bootstrapped predictions
+y.tilde <- t(as.data.frame(y.tilde.boot$t) %>% summarise_each(funs(mean)))
+y.tilde
+
+scale <- function (r=raw, s=scaled) {
+    # Reverses the scaling applied to by arm `rescale`
+    # only works for numerical values
+    require(arm)
+    r <- r[!is.na(r)]
+    return((s * 2 * sd(r)) + mean(r)) 
+}
+
+d <- data.table(cbind(y.tilde.boot$data, y.tilde))
+# d[, .(hr.24.rs, scale(r=wdt$hr.24, s=hr.24.rs))]
+head(d)
+d[,hr.high:=ifelse(scale(wdt$hr.24, hr.24.rs) >= 95, "High", "Low" )]
+
+# Plot predicted mortality and interaction
+# - [ ] TODO(2016-04-28): lines fitted to bootstrap predictions, would
+#   be better to recover coefficients directly from bootstrapping
+ggplot(data=d,
+    aes(y=y.tilde,
+        x=scale(wdt$ne.24, ne.24.rs),
+        group=hr.high, colour=hr.high
+        )) +
+    geom_smooth(method="lm", aes(colour=hr.high)) + 
+    geom_point() +
+    coord_cartesian(x=c(0,2), y=c(0,1)) + guides(colour=FALSE) +
+    xlab("Noradrenaline (mcg/kg/min)") +
+    ylab("Predicted mortality") +
+    theme_minimal()
 
 
 
