@@ -385,37 +385,31 @@ gg.q    +
 #  ===================================================
 #  = Exploring simulations of the predicted response =
 #  ===================================================
-# - [ ] TODO(2016-04-28): bootstrap respecting hierarchical structure @next
-# - [ ] TODO(2016-04-28): bootstrap more simulations @next
+# - [ ] TODO(2016-04-28): bootstrap respecting hierarchical structure @next @done(%Y-%m-%d)
+# - [ ] TODO(2016-04-28): bootstrap more simulations @next @done(%Y-%m-%d)
 # - [ ] TODO(2016-04-28): bootstrap both models for comparison @later
 
-m <- m1 # use model without interaction
-coef(m)
-fixef(m)
-ranef(m)
-# Obtain predictions
+# Final model
+f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
+f
+# - [ ] NOTE(2016-04-28): not sure how legit it is to reduce nACQ to 0, for speed
+m <- glmer(f, data=wdt, family=binomial(link="logit"), nAGQ = 0)
 y.tilde <- predict(m, type="response")
-describe(y.tilde)
+summary(y.tilde)
 
-# Now bootstrap for CI
-require(boot)
-FUN <- function(m) {
+# Bootstrap the predicted results using bootMer hence manages sampling
+rBoot <- function(m) {
     y.tilde <- predict(m, type="response")
     return(y.tilde)
 }
 
-# Running with just 3 simulations while developing
-y.tilde.boot <- bootMer(m, FUN, nsim=3)
-y.tilde.boot
-str(y.tilde.boot)
-summary(y.tilde.boot)
-summary(y.tilde.boot$t)
-head(y.tilde.boot$t)
-
-
-# Summarise mean of bootstrapped predictions
-y.tilde <- t(as.data.frame(y.tilde.boot$t) %>% summarise_each(funs(mean)))
-y.tilde
+nsims = 100
+system.time(bMer <- bootMer(m, rBoot, nsim=nsims))
+# str(bMer)
+head(t(bMer$t))
+y.tilde <- t(as.data.frame(bMer$t) %>% summarise_each(funs(mean)))
+# str(y.tilde)
+# Predicted response per patient
 
 scale <- function (r=raw, s=scaled) {
     # Reverses the scaling applied to by arm `rescale`
@@ -425,9 +419,16 @@ scale <- function (r=raw, s=scaled) {
     return((s * 2 * sd(r)) + mean(r)) 
 }
 
-d <- data.table(cbind(y.tilde.boot$data, y.tilde))
+d <- data.table(cbind(bMer$data, y.tilde))
 # d[, .(hr.24.rs, scale(r=wdt$hr.24, s=hr.24.rs))]
 head(d)
+
+# Other model outputs
+coef(m)
+fixef(m)
+ranef(m)
+
+# Regenerate your hr.high/hr.low
 d[,hr.high:=ifelse(scale(wdt$hr.24, hr.24.rs) >= 95, "High", "Low" )]
 
 # Plot predicted mortality and interaction
