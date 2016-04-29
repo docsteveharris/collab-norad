@@ -34,11 +34,6 @@ source(file="../share/functions4paper.R")
 describe(wdt$sepsis.site)
 with(wdt, table(mort.itu, hosp.id.sort))
 
-# Null model
-m <- glm(mort.itu ~ 1 , data=wdt)
-m <- glm(mort.itu ~ age.rs , data=wdt)
-# coef.plot(m)
-
 # Prepare scaled variables
 wdt[, `:=` (
     age.rs = rescale(age),
@@ -48,10 +43,16 @@ wdt[, `:=` (
     sedation.24.rs = rescale(sedation.24),
     fb.24.rs = rescale(fb.24),
     hr.24.rs = rescale(hr.24),
+    map.24.rs = rescale(map.24),
     ne.24.rs = rescale(ne.24)
             )
 ]
 wdt
+
+# Null model
+m <- glm(mort.itu ~ 1 , data=wdt)
+m <- glm(mort.itu ~ age.rs , data=wdt)
+# coef.plot(m)
 
 #  ===================================
 #  = Exploratory model building work =
@@ -262,7 +263,7 @@ f.missing %>% group_by(hosp) %>% mutate(tot.missing = sum(.)) %>% select(hosp,to
 
 
 f
-m <- glmer(f , data=wdt, family=binomial(link="logit"))
+m <- glmer(f, data=wdt, family=binomial(link="logit"))
 display(m)
 coef.plot(m)
 
@@ -317,7 +318,7 @@ vars.ne <- c(
             "hr.24.rs",
             # "hr.high",
             # "map.24.rs",
-            # "map.high",
+            "map.high",
             "ne.24.rs",
             # "hr.high:ne.24.rs",
             "ne.24.rs:hr.high"
@@ -351,7 +352,7 @@ vars.ne <- c(
             "hr.24.rs",
             # "hr.high",
             # "map.24.rs",
-            # "map.high",
+            "map.high",
             "ne.24.rs"
             # ,
             # "hr.high:ne.24.rs",
@@ -361,8 +362,11 @@ vars.ne <- c(
 f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
 f
 m1 <- glmer(f, data=wdt, family=binomial(link="logit"))
-# print(m0)
-# print(m1)
+# Try improving the fit by further iterations starting from prev model
+ss <- getME(m1,c("theta","fixef"))
+m1 <- update(m1,start=ss,control=glmerControl(optCtrl=list(maxfun=2e4)))
+display(m1)
+# Works!?
 # marginal but 'significant' improvement in fit
 anova(m0,m1)
 
@@ -389,26 +393,58 @@ gg.q    +
 # - [ ] TODO(2016-04-28): bootstrap more simulations @next @done(%Y-%m-%d)
 # - [ ] TODO(2016-04-28): bootstrap both models for comparison @later
 
-# Final model
+# Final model (see above for how we got here)
+m.labels <- c(
+    "Age",
+    "Male",
+    "Weight",
+    "Abdominal sepsis",
+    "Genito-urinary sepsis",
+    "Respiratory sepsis",
+    "SOFA (baseline)",
+    "Lactate (baseline)",
+    "Mechanical ventilation",
+    "Renal replacement therapy",
+    "Sedation score",
+    "Additional vasopressors",
+    # "Steroid treatment", - [ ] NOTE(2016-03-27): too much missingness
+    "Fluid balance",
+    "Heart rate",
+    "Mean arterial pressure",
+    "Noradrenaline dose" ,
+    "Noradrenaline:Heart rate interaction"
+    # "Noradrenaline:MAP > 75 interaction"
+     )
+vars.ne <- c(
+            "hr.24.rs",
+            # "hr.high",
+            "map.24.rs",
+            # "map.high",
+            "ne.24.rs",
+            # ,
+            "hr.high:ne.24.rs"
+            # "ne.24.rs:hr.high"
+            # "ne.24.rs:map.high"
+                   )
 f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
 f
 # - [ ] NOTE(2016-04-28): not sure how legit it is to reduce nACQ to 0, for speed
 m <- glmer(f, data=wdt, family=binomial(link="logit"), nAGQ = 0)
+display(m)
 y.tilde <- predict(m, type="response")
 summary(y.tilde)
 
 # Bootstrap the predicted results using bootMer hence manages sampling
 rBoot <- function(m) {
     y.tilde <- predict(m, type="response")
-    return(y.tilde)
 }
 
-nsims = 100
+nsims = 10
 system.time(bMer <- bootMer(m, rBoot, nsim=nsims))
 # str(bMer)
-head(t(bMer$t))
+head(t(bMer$t)) # inspect the predictions
 y.tilde <- t(as.data.frame(bMer$t) %>% summarise_each(funs(mean)))
-# str(y.tilde)
+str(y.tilde)
 # Predicted response per patient
 
 scale <- function (r=raw, s=scaled) {
@@ -424,9 +460,13 @@ d <- data.table(cbind(bMer$data, y.tilde))
 head(d)
 
 # Other model outputs
-coef(m)
-fixef(m)
-ranef(m)
+# coef(m)
+# fixef(m)
+# ranef(m)
+# str(coef(m))
+# length(m.labels)
+# m.labels
+coef.plot(m, m.labels)
 
 # Regenerate your hr.high/hr.low
 d[,hr.high:=ifelse(scale(wdt$hr.24, hr.24.rs) >= 95, "High", "Low" )]
