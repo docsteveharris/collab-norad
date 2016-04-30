@@ -412,8 +412,8 @@ m.labels <- c(
     "Heart rate",
     "Mean arterial pressure",
     "Noradrenaline dose" ,
-    "Noradrenaline:Heart rate interaction"
-    # "Noradrenaline:MAP > 75 interaction"
+    "Noradrenaline:Heart rate interaction",
+    "Noradrenaline:MAP interaction"
      )
 vars.ne <- c(
             "hr.24.rs",
@@ -421,10 +421,8 @@ vars.ne <- c(
             "map.24.rs",
             # "map.high",
             "ne.24.rs",
-            # ,
-            "hr.high:ne.24.rs"
-            # "ne.24.rs:hr.high"
-            # "ne.24.rs:map.high"
+            "ne.24.rs:hr.high", # significant and of interest
+            "ne.24.rs:map.high" # leave in model to report 'non-significance'
                    )
 f <- formula(paste("mort.itu ~ ", paste(c(vars.pt, vars.rx, vars.ne), collapse="+"), "+ (1 + ne.24.rs | hosp.id)"))
 f
@@ -439,7 +437,7 @@ rBoot <- function(m) {
     y.tilde <- predict(m, type="response")
 }
 
-nsims = 10
+nsims = 100
 system.time(bMer <- bootMer(m, rBoot, nsim=nsims))
 # str(bMer)
 head(t(bMer$t)) # inspect the predictions
@@ -474,17 +472,31 @@ d[,hr.high:=ifelse(scale(wdt$hr.24, hr.24.rs) >= 95, "High", "Low" )]
 # Plot predicted mortality and interaction
 # - [ ] TODO(2016-04-28): lines fitted to bootstrap predictions, would
 #   be better to recover coefficients directly from bootstrapping
-ggplot(data=d,
+p <- ggplot(data=d,
     aes(y=y.tilde,
         x=scale(wdt$ne.24, ne.24.rs),
         group=hr.high, colour=hr.high
         )) +
     geom_smooth(method="lm", aes(colour=hr.high)) + 
     geom_point() +
-    coord_cartesian(x=c(0,2), y=c(0,1)) + guides(colour=FALSE) +
+    coord_cartesian(x=c(0,2), y=c(0,1)) +
     xlab("Noradrenaline (mcg/kg/min)") +
     ylab("Predicted mortality") +
-    theme_minimal()
+    theme_minimal() +
+    scale_colour_manual(
+        values=c("Red", "Grey"),
+        name="",
+        labels=c("Heart rate >= 95",
+                 "Heart rate < 95")
+            ) +
+    theme(
+        legend.justification=c(0,0), # not sure what this does
+        legend.position=c(0.6,0.1) # position legend from bottom left
+        )
+
+ggsave(p, file="../write/figures/model_mortality_ne24hr24.pdf", width=3, height=3, scale=2)
+ggsave(p, file="../write/figures/model_mortality_ne24hr24.jpg", width=3, height=3, scale=2)
+
 
 
 
@@ -510,6 +522,7 @@ p <- coef.plot(m)
 p <- coef.plot(m, m.labels=m.labels)
 print(p)
 ggsave(p, file="../write/figures/model_mortality.pdf", width=3, height=3, scale=2)
+ggsave(p, file="../write/figures/model_mortality.jpg", width=3, height=3, scale=2)
 
 
 (m.var.ranef <- summary(m)$varcor$hosp.id[1])

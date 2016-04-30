@@ -2,7 +2,7 @@
 title: "scratch_results"
 author: "Steve Harris"
 date:	"7 Mar 2016"
-output: md_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -21,7 +21,7 @@ source(file="../share/functions4paper.R")
 
 ## Patients
 
-- [ ] TODO(2016-03-17): concept of sequentially stricter subgroups
+<!-- - [ ] TODO(2016-03-17): concept of sequentially stricter subgroups -->
 
 We requested data on one hundred consecutive admissions with septic shock from eight critical care units across Europe. Patients were eligible if they were treated for presumed infection, required noradrenaline infusion for at least one hour, and survived for a minimum of 24 hours (in order that we could characterise their first 24 hours of treatment). We defined a subgroup of patients with resistant septic shock where the noradrenaline infusion was not weaned within 24 hours, and a nested subgroup with tachycardic septic shock subgroup. This latter subgroup mimicked the control group in the study by Morelli et al where the heart rate had to be greater than 95 beats/minute at 24 hours, and the patients had not received beta-blockers therapy.
 
@@ -96,16 +96,21 @@ We examined noradrenaline doses administered at 24 hours after ranking the ICUs 
 
 ## Predictors of 24 hour treatment variables
 
-For noradrenaline, mean arterial pressure and fluid balance, we entered each variable into a model to understand the relative contributions of patient predictors (at baseline) and the ICU level effect on these measures at 24 hours (Figure 2 [lower panel], and Table 2). For example, higher baseline SOFA scores and lactate measures are were associated with noradrenaline requirement at 24 hours. However, the same variables had little effect on MAP at the same time point (presumably because it was defined by noradrenaline dose instead), and baseline lactate but not the SOFA score was correlated with fluid balance.
+For noradrenaline, mean arterial pressure and fluid balance, we entered each variable into a model to estimate the relative contributions of patient predictors (at baseline) and the ICU level effect on these measures at 24 hours (Figure 2 [lower panel], and Table 2). For example, higher baseline SOFA scores and lactate measures are were associated with noradrenaline requirement at 24 hours. However, the same variables had little effect on MAP at the same time point (presumably because it was defined by noradrenaline dose instead), and baseline lactate but not the SOFA score was correlated with fluid balance.
 
 The ICC (proportion of variance in the multilevel model accounted for by the ICU) for the 24 hour values of noradrenaline dose was 44%, for MAP was 4%, and for fluid balance was 29%.
 
-## Variation in mortality between ICUs
+## Mortality and noradrenaline dose at 24 hours
+
+The final ICU mortality model demonstrated the importance of noradrenaline dose at 24 hours as a predictor of survival (OR XX, Figure 3 and Table ). Mean arterial pressure after adjustment for other variables had no effect on outcome (OR XX). Increasing heart rate at 24 hours was associated with higher mortality (OR XX), but this effect was attenuated as heart rate increased (Figure 4). The ICC for this model was 7% indicating that the majority of the variation in outcoome arose from differences in patient characteristics.
 
 
+<!-- - [ ] TODO(2016-04-30): convert linear estimates to exponentials for OR
 - [ ] TODO(2016-03-10): compare mortality to that reported in JAMA paper
 - [ ] TODO(2016-03-10): report intersite variation in mortailty
 - [ ] TODO(2016-03-10): look for heart rate mortality interaction
+ -->
+
 
 
 
@@ -113,9 +118,12 @@ The ICC (proportion of variance in the multilevel model accounted for by the ICU
 
 # Discussion points
 
-- [ ] report patients meeting criteria for septic shock as per Sepsis 3
+TO BE WRITTEN
+
+<!-- - [ ] report patients meeting criteria for septic shock as per Sepsis 3
 	- blood pressure or norad (all)
 	- lactate > 2
+ -->
 
 # Figures
 
@@ -129,9 +137,21 @@ Figure 1: Mosaic plot of subgroups by ICU. The width of each bar is proportional
 
 Figure 2 (Top panel): Box and whisker plots of treatment variables (noradrenaline dose, mean arterial pressure, and fluid balance) at 24 hours for each ICU. The ICUs are ordered by the mean ICU mortality rate (ascending from left to right).
 
-Figure 2 (Bottom panel): Standardised regression coefficients for patient level predictors of 24 hour treatment variables (noradrenaline dose, mean arterial pressure, and fluid balance). The point estimates are surrouneded by black and grey limits representing one and two standard error limits. For MAP, the standard errors were so large that the x-axis scale has been extended to four standardised coefficients above and below zero.
+Figure 2 (Bottom panel): Standardised regression coefficients for patient level predictors of 24 hour treatment variables (noradrenaline dose, mean arterial pressure, and fluid balance). The point estimates are surrounded by black and grey limits representing one and two standard error limits. For MAP, the standard errors were so large that the x-axis scale has been extended to four standardised coefficients above and below zero.
 
-![](figures/process_all.jpg)
+![](figures/model_rx_all.jpg)
+
+## Figure 3
+
+Figure 3: Standardised regression coefficients for patient level predictors of ICU mortality. Each predictor is scaled and so the relative effects are directly comparable, and Noradrenaline dose at 24 hours is the strongest predictor of mortality. Increasing heart rates are also associated with worse outcomes but this affect is attenuated as the noradrenaline dose increases (see the negative effect for the Noradrenaline:Heart rate interaction term). The point estimates are surrounded by black and grey limits representing one and two standard error limits.
+
+![](figures/model_mortality.jpg)
+
+## Figure 4
+
+Figure 4: Model predictions of mortality against noradrenaline dose at 24 hours repeated for patients with high (>95/min) and low heart rates. Noradrenaline has a weaker association with mortality for patients with a higher 24 hour heart rate (lower slope).
+
+![](figures/model_mortality_ne24hr24.jpg)
 
 # Supplementary Figures
 
@@ -139,5 +159,17 @@ Figure 2 (Bottom panel): Standardised regression coefficients for patient level 
 
 Supplementary Figure 1: Mosaic plots of the proportion of patients in receipt of additional vasopressors, mechanical ventilation, renal replacement therapy, and sedation (clockwise from top left). The width of each bar is proportional to the number of patients with data from each ICU. The bars are ordered by the mean ICU mortality rate (ascending from left to right).
 
+# Tables
 
-Figure 2:
+## Table 1
+
+Patient characteristics
+
+## Table 2
+
+Standardised regression coefficients for patient level predictors of 24 hour treatment variables (noradrenaline dose, mean arterial pressure, and fluid balance).
+
+
+## Table 3
+
+ICU mortality ...

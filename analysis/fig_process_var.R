@@ -84,8 +84,8 @@ tdt <- na.omit(
             sedation.24.logical = ifelse(sedation.24 > 0, 1, 0)
             )])
 t1.trend("sedation.24.logical", "hosp.id.sort", data=tdt, var.cont=FALSE)
-p <- ggMMplot(tdt$hosp.id.sort, !tdt$sedation.24.logical, xlab="Intensive Care Unit", ylab="Sedation")
-p
+p <- ggMMplot(tdt$hosp.id.sort, !tdt$sedation.24.logical)
+p <- p + xlab("Intensive Care Unit") + ylab("Sedation")
 ggsave(p, file="../write/figures/process_sedation.pdf", width=3, height=3, scale=2)
 
 
@@ -105,7 +105,8 @@ tdt <- na.omit(
                     ifelse(ne.24 > 0.0, vadi.24 - 1, vadi.24))))])
 tdt[, vadi.other.24.logical := ifelse(vadi.other.24 > 0, 1, 0)]
 t1.trend("vadi.other.24.logical", "hosp.id.sort", data=tdt, var.cont=FALSE)
-p <- ggMMplot(tdt$hosp.id.sort, tdt$vadi.other.24.logical, xlab="Intensive Care Unit", ylab="Other vasopressors/inotropes")
+p <- ggMMplot(tdt$hosp.id.sort, tdt$vadi.other.24.logical)
+p <- p + xlab("Intensive Care Unit") + ylab("Other vasopressors/inotropes")
 p
 ggsave(p, file="../write/figures/process_vadi.pdf", width=3, height=3, scale=2)
 
@@ -117,7 +118,8 @@ tdt <- na.omit(
                 rx.roids.logical = ifelse(rx.roids==TRUE, 1, 0)
             )])
 t1.trend("rx.roids.logical", "hosp.id.sort", data=tdt, var.cont=FALSE)
-p <- ggMMplot(tdt$hosp.id.sort, tdt$rx.roids.logical, xlab="Intensive Care Unit", ylab="Corticosteroids")
+p <- ggMMplot(tdt$hosp.id.sort, tdt$rx.roids.logical)
+p <- p + xlab("Intensive Care Unit") + ylab("Corticosteroids")
 p
 ggsave(p, file="../write/figures/process_roids.pdf", width=3, height=3, scale=2)
 
@@ -129,7 +131,8 @@ tdt <- na.omit(
                 mv.24
             )])
 t1.trend("mv.24", "hosp.id.sort", data=tdt, var.cont=FALSE)
-p <- ggMMplot(tdt$hosp.id.sort, !tdt$mv.24, xlab="Intensive Care Unit", ylab="Mechanical ventilation")
+p <- ggMMplot(tdt$hosp.id.sort, !tdt$mv.24)
+p <- p + xlab("Intensive Care Unit") + ylab("Mechanical ventilation")
 p
 ggsave(p, file="../write/figures/process_mv.pdf", width=3, height=3, scale=2)
 
@@ -140,6 +143,7 @@ tdt <- na.omit(
                 hosp.id.sort,
                 rrt.24
             )])
-p <- ggMMplot(tdt$hosp.id.sort, !tdt$rrt.24, xlab="Intensive Care Unit", ylab="Renal replacement therapy")
+p <- ggMMplot(tdt$hosp.id.sort, !tdt$rrt.24)
+p <- p + xlab("Intensive Care Unit") + ylab("Renal replacement therapy")
 p
 ggsave(p, file="../write/figures/process_rrt.pdf", width=3, height=3, scale=2)
